@@ -1,0 +1,42 @@
+@use "../../../../../styles/variables" as *;
+
+.picker {
+  margin-top: $space-3;
+}
+
+.search {
+  @include tap-target;
+  width: 100%;
+  padding: 0 $space-3;
+  font-size: $font-size-base;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--background);
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  margin-top: $space-2;
+  max-height: 12rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.resultButton {
+  @include tap-target;
+  width: 100%;
+  padding: 0 $space-3;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--background);
+  cursor: pointer;
+}
+
+.empty {
+  padding: $space-2 0;
+  color: var(--muted);
+  font-size: $font-size-sm;
+}

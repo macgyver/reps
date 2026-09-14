@@ -1,0 +1,69 @@
+@use "../../../../styles/variables" as *;
+
+.main {
+  flex: 1;
+  padding: $space-4;
+  max-width: 40rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.date {
+  color: var(--muted);
+  font-size: $font-size-sm;
+  margin-bottom: $space-4;
+}
+
+.supersetList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+  list-style: none;
+}
+
+.superset {
+  padding: $space-4;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+}
+
+.exercise {
+  margin-top: $space-3;
+}
+
+.setList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  margin-top: $space-2;
+  list-style: none;
+}
+
+.set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  padding: $space-2 $space-3;
+  border-radius: $radius;
+  background: var(--background);
+  font-size: $font-size-sm;
+}
+
+.setIndex {
+  color: var(--muted);
+}
+
+.mods {
+  color: var(--accent);
+}
+
+.notes {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: $font-size-sm;
+}

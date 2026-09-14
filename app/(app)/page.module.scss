@@ -1,0 +1,50 @@
+@use "../../styles/variables" as *;
+
+.main {
+  flex: 1;
+  padding: $space-4;
+  max-width: 40rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.newSessionButton {
+  @include tap-target;
+  width: 100%;
+  border: none;
+  border-radius: $radius;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: $font-size-lg;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-6;
+  list-style: none;
+}
+
+.sessionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-3 $space-4;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+}
+
+.status {
+  font-size: $font-size-sm;
+  color: var(--muted);
+}
+
+.empty {
+  margin-top: $space-6;
+  color: var(--muted);
+  text-align: center;
+}

@@ -1,0 +1,70 @@
+@use "../../../styles/variables" as *;
+
+.search {
+  @include tap-target;
+  width: 100%;
+  padding: 0 $space-4;
+  margin-bottom: $space-4;
+  font-size: $font-size-lg;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  list-style: none;
+}
+
+.item {
+  padding: $space-4;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: 600;
+}
+
+.editLink {
+  @include tap-target-sm;
+  display: flex;
+  align-items: center;
+  padding: 0 $space-2;
+  margin: 0 (-$space-2);
+  color: var(--accent);
+  font-size: $font-size-sm;
+}
+
+.description {
+  margin-top: $space-1;
+  color: var(--muted);
+}
+
+.video {
+  display: inline-block;
+  margin-top: $space-2;
+  color: var(--accent);
+}
+
+.modifications {
+  margin-top: $space-2;
+  font-size: $font-size-sm;
+  color: var(--muted);
+}
+
+.empty {
+  color: var(--muted);
+  list-style: none;
+}

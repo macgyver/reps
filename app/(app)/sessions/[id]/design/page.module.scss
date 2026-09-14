@@ -1,0 +1,96 @@
+@use "../../../../../styles/variables" as *;
+
+.main {
+  flex: 1;
+  padding: $space-4;
+  max-width: 40rem;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 6rem;
+}
+
+.error {
+  color: var(--danger);
+  font-size: $font-size-sm;
+  margin-top: $space-2;
+}
+
+.supersetList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  margin-top: $space-4;
+  list-style: none;
+}
+
+.superset {
+  padding: $space-4;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+}
+
+.supersetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.exerciseList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-3;
+  list-style: none;
+}
+
+.exerciseRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-2 $space-3;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--background);
+}
+
+.removeButton {
+  @include tap-target-sm;
+  padding: 0 $space-2;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: $font-size-sm;
+  cursor: pointer;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: $font-size-sm;
+}
+
+.addSupersetButton {
+  @include tap-target;
+  width: 100%;
+  margin-top: $space-4;
+  border: 1px dashed var(--border);
+  border-radius: $radius;
+  background: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.startButton {
+  @include tap-target;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: $space-6;
+  border-radius: $radius;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: $font-size-lg;
+  font-weight: 700;
+}

@@ -1,0 +1,27 @@
+@use "../../../styles/variables" as *;
+
+.main {
+  flex: 1;
+  padding: $space-4;
+  max-width: 40rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-4;
+}
+
+.newButton {
+  @include tap-target;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 $space-4;
+  border-radius: $radius;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 600;
+}
