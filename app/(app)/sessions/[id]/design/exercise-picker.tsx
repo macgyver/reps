@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SubmitButton } from "@/components/submit-button";
 import type { Exercise } from "@/lib/exercises/data";
 import styles from "./exercise-picker.module.scss";
 
@@ -30,9 +31,13 @@ export function ExercisePicker({
           <li key={exercise.id}>
             <form action={addAction}>
               <input type="hidden" name="exerciseId" value={exercise.id} />
-              <button type="submit" className={styles.resultButton}>
+              <SubmitButton
+                className={styles.resultButton}
+                fullWidth
+                pendingLabel={`Adding ${exercise.name}…`}
+              >
                 {exercise.name}
-              </button>
+              </SubmitButton>
             </form>
           </li>
         ))}

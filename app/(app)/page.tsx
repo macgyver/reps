@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SubmitButton } from "@/components/submit-button";
 import { getSessionsForUser } from "@/lib/sessions/data";
 import { createSession } from "./sessions/actions";
 import styles from "./page.module.scss";
@@ -9,9 +10,9 @@ export default async function Home() {
   return (
     <main className={styles.main}>
       <form action={createSession}>
-        <button type="submit" className={styles.newSessionButton}>
+        <SubmitButton className={styles.newSessionButton} fullWidth pendingLabel="Creating session…">
           + New session
-        </button>
+        </SubmitButton>
       </form>
 
       <ul className={styles.sessionList}>

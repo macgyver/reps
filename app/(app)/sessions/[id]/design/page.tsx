@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { SubmitButton } from "@/components/submit-button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getExercises } from "@/lib/exercises/data";
 import { getSession } from "@/lib/sessions/data";
@@ -48,9 +49,9 @@ export default async function DesignSessionPage({
             <div className={styles.supersetHeader}>
               <span>Superset {index + 1}</span>
               <form action={removeSuperset.bind(null, id, superset.id)}>
-                <button type="submit" className={styles.removeButton}>
+                <SubmitButton className={styles.removeButton} pendingLabel="Removing superset…">
                   Remove
-                </button>
+                </SubmitButton>
               </form>
             </div>
             <ul className={styles.exerciseList}>
@@ -58,9 +59,12 @@ export default async function DesignSessionPage({
                 <li key={exercise.id} className={styles.exerciseRow}>
                   <span>{exercise.exerciseName}</span>
                   <form action={removeSupersetExercise.bind(null, id, exercise.id)}>
-                    <button type="submit" className={styles.removeButton}>
+                    <SubmitButton
+                      className={styles.removeButton}
+                      pendingLabel={`Removing ${exercise.exerciseName}…`}
+                    >
                       Remove
-                    </button>
+                    </SubmitButton>
                   </form>
                 </li>
               ))}
@@ -77,9 +81,9 @@ export default async function DesignSessionPage({
       </ol>
 
       <form action={addSuperset.bind(null, id)}>
-        <button type="submit" className={styles.addSupersetButton}>
+        <SubmitButton className={styles.addSupersetButton} fullWidth pendingLabel="Adding superset…">
           + Add superset
-        </button>
+        </SubmitButton>
       </form>
 
       {canStart ? (

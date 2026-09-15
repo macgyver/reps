@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { SubmitButton } from "@/components/submit-button";
 import type { SessionSuperset } from "@/lib/sessions/data";
-import { completeSuperset, logSet } from "../actions";
+import { completeSuperset, logSet, type LogSetState } from "../actions";
 import styles from "./run-session.module.scss";
 
 export function RunSession({
@@ -21,18 +22,24 @@ export function RunSession({
   let exercise = superset.exercises[exerciseIndex % superset.exercises.length];
   let isSingleExercise = superset.exercises.length === 1;
 
+  let logSetForExercise = logSet.bind(null, sessionId, exercise.id);
+  let [state, formAction] = useActionState<LogSetState, FormData>(logSetForExercise, null);
+
+  let [handledState, setHandledState] = useState(state);
+  if (state !== handledState) {
+    setHandledState(state);
+    if (state && "success" in state) {
+      setCheckedMods([]);
+      setFormKey((k) => k + 1);
+    }
+  }
+
   function toggleMod(id: string) {
     setCheckedMods((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]));
   }
 
   function nextExercise() {
     setExerciseIndex((i) => i + 1);
-    setCheckedMods([]);
-    setFormKey((k) => k + 1);
-  }
-
-  async function handleLogSet(formData: FormData) {
-    await logSet(sessionId, exercise.id, formData);
     setCheckedMods([]);
     setFormKey((k) => k + 1);
   }
@@ -44,7 +51,7 @@ export function RunSession({
       </p>
       <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
 
-      <form key={formKey} action={handleLogSet} className={styles.form}>
+      <form key={formKey} action={formAction} className={styles.form}>
         <div className={styles.fieldRow}>
           <label className={styles.field}>
             Weight
@@ -87,9 +94,14 @@ export function RunSession({
           </div>
         ) : null}
 
-        <button type="submit" className={styles.logButton}>
+        {state && "error" in state ? (
+          <p role="alert" className={styles.formError}>
+            {state.error}
+          </p>
+        ) : null}
+        <SubmitButton className={styles.logButton} fullWidth pendingLabel="Logging set…">
           Log set
-        </button>
+        </SubmitButton>
       </form>
 
       <div className={styles.navRow}>
@@ -97,9 +109,13 @@ export function RunSession({
           {isSingleExercise ? "Next set" : "Next exercise"}
         </button>
         <form action={completeSuperset.bind(null, sessionId, superset.id)}>
-          <button type="submit" className={styles.completeButton}>
+          <SubmitButton
+            className={styles.completeButton}
+            fullWidth
+            pendingLabel={isLastSuperset ? "Finishing session…" : "Completing superset…"}
+          >
             {isLastSuperset ? "Finish session" : "Complete superset"}
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </div>

@@ -97,7 +97,14 @@ export async function removeSupersetExercise(sessionId: string, supersetExercise
   revalidatePath(`/sessions/${sessionId}/design`);
 }
 
-export async function logSet(sessionId: string, supersetExerciseId: string, formData: FormData) {
+export type LogSetState = { error: string } | { success: true } | null;
+
+export async function logSet(
+  sessionId: string,
+  supersetExerciseId: string,
+  _prevState: LogSetState,
+  formData: FormData,
+): Promise<LogSetState> {
   let weightRaw = formData.get("weight");
   let repsRaw = formData.get("reps");
   let weight = typeof weightRaw === "string" && weightRaw.trim() ? Number(weightRaw) : null;
@@ -116,7 +123,7 @@ export async function logSet(sessionId: string, supersetExerciseId: string, form
     .single();
 
   if (error || !data) {
-    redirect(`/sessions/${sessionId}?error=${encodeURIComponent(error?.message ?? "Could not log set")}`);
+    return { error: error?.message ?? "Could not log set" };
   }
 
   let modificationIds = formData.getAll("modification").filter((v) => typeof v === "string");
@@ -128,11 +135,12 @@ export async function logSet(sessionId: string, supersetExerciseId: string, form
     }));
     let { error: modError } = await supabase.from("set_modifications").insert(rows);
     if (modError) {
-      redirect(`/sessions/${sessionId}?error=${encodeURIComponent(modError.message)}`);
+      return { error: modError.message };
     }
   }
 
   revalidatePath(`/sessions/${sessionId}`);
+  return { success: true };
 }
 
 export async function completeSuperset(sessionId: string, supersetId: string) {

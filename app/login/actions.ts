@@ -1,12 +1,16 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export async function signInWithMagicLink(formData: FormData) {
+export type LoginState = { error: string } | { sent: true } | null;
+
+export async function signInWithMagicLink(
+  _prevState: LoginState,
+  formData: FormData,
+): Promise<LoginState> {
   let email = formData.get("email");
   if (typeof email !== "string" || !email) {
-    redirect("/login?error=Enter a valid email address");
+    return { error: "Enter a valid email address" };
   }
 
   let supabase = await createClient();
@@ -20,8 +24,8 @@ export async function signInWithMagicLink(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    return { error: error.message };
   }
 
-  redirect("/login?sent=1");
+  return { sent: true };
 }

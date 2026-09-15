@@ -1,17 +1,17 @@
-import { createExercise } from "../actions";
+"use client";
+
+import { useActionState } from "react";
+import { SubmitButton } from "@/components/submit-button";
+import { createExercise, type ExerciseFormState } from "../actions";
 import styles from "../form.module.scss";
 
-export default async function NewExercisePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  let { error } = await searchParams;
+export default function NewExercisePage() {
+  let [state, formAction] = useActionState<ExerciseFormState, FormData>(createExercise, null);
 
   return (
     <main className={styles.main}>
       <h1>New exercise</h1>
-      <form action={createExercise} className={styles.form}>
+      <form action={formAction} className={styles.form}>
         <label htmlFor="name" className={styles.label}>
           Name
         </label>
@@ -27,14 +27,14 @@ export default async function NewExercisePage({
         </label>
         <input id="videoUrl" name="videoUrl" type="url" className={styles.input} />
 
-        {error ? (
+        {state && "error" in state ? (
           <p role="alert" className={styles.error}>
-            {error}
+            {state.error}
           </p>
         ) : null}
-        <button type="submit" className={styles.submit}>
+        <SubmitButton className={styles.submit} fullWidth pendingLabel="Creating exercise…">
           Create
-        </button>
+        </SubmitButton>
       </form>
     </main>
   );

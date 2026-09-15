@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SubmitButton } from "@/components/submit-button";
 import { signOut } from "@/lib/auth/actions";
 import styles from "./layout.module.scss";
 
@@ -14,9 +15,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             Exercises
           </Link>
           <form action={signOut}>
-            <button type="submit" className={styles.signOut}>
+            <SubmitButton className={styles.signOut} pendingLabel="Signing out…">
               Sign out
-            </button>
+            </SubmitButton>
           </form>
         </nav>
       </header>

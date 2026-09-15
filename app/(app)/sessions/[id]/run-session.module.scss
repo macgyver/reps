@@ -89,6 +89,11 @@
   background: var(--surface);
 }
 
+.formError {
+  color: var(--danger);
+  font-size: $font-size-sm;
+}
+
 .logButton {
   @include tap-target;
   border: none;
