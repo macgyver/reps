@@ -1,5 +1,6 @@
 import { signInWithMagicLink } from "./actions";
 import styles from "./page.module.scss";
+import { SubmitButton } from "./submit-button";
 
 export default async function LoginPage({
   searchParams,
@@ -32,9 +33,7 @@ export default async function LoginPage({
               {error}
             </p>
           ) : null}
-          <button type="submit" className={styles.submit}>
-            Send magic link
-          </button>
+          <SubmitButton />
         </form>
       )}
     </main>
