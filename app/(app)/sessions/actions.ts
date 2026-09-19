@@ -21,6 +21,10 @@ export async function createSession() {
     redirect(`/?error=${encodeURIComponent(error?.message ?? "Could not create session")}`);
   }
 
+  // Start with one empty superset already in place so the design screen is
+  // immediately ready for picking an exercise, no "+ Add superset" click needed.
+  await supabase.from("supersets").insert({ session_id: data.id, position: 0 });
+
   redirect(`/sessions/${data.id}/design`);
 }
 
