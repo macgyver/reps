@@ -10,9 +10,27 @@
   flex-direction: column;
 }
 
+.topRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
 .supersetLabel {
   color: var(--muted);
   font-size: $font-size-sm;
+}
+
+.editLink {
+  @include tap-target-sm;
+  display: flex;
+  align-items: center;
+  padding: 0 $space-2;
+  margin: 0 (-$space-2);
+  color: var(--accent);
+  font-size: $font-size-sm;
+  flex-shrink: 0;
 }
 
 .exerciseName {

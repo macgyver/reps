@@ -3,9 +3,15 @@
 .main {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: $space-3;
   padding: $space-4;
   text-align: center;
   color: var(--muted);
+}
+
+.editLink {
+  color: var(--accent);
 }

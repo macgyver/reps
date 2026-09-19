@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { SubmitButton } from "@/components/submit-button";
 import type { SessionSuperset } from "@/lib/sessions/data";
@@ -46,9 +47,14 @@ export function RunSession({
 
   return (
     <div className={styles.container}>
-      <p className={styles.supersetLabel}>
-        Superset {isSingleExercise ? "" : `— exercise ${(exerciseIndex % superset.exercises.length) + 1} of ${superset.exercises.length}`}
-      </p>
+      <div className={styles.topRow}>
+        <p className={styles.supersetLabel}>
+          Superset {isSingleExercise ? "" : `— exercise ${(exerciseIndex % superset.exercises.length) + 1} of ${superset.exercises.length}`}
+        </p>
+        <Link href={`/sessions/${sessionId}/design`} className={styles.editLink}>
+          Edit session
+        </Link>
+      </div>
       <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
 
       <form key={formKey} action={formAction} className={styles.form}>

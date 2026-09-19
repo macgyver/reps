@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getSession, getSessionWithSets } from "@/lib/sessions/data";
@@ -26,6 +27,9 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     return (
       <main className={styles.main}>
         <p>All supersets are complete.</p>
+        <Link href={`/sessions/${id}/design`} className={styles.editLink}>
+          Edit session
+        </Link>
       </main>
     );
   }
@@ -36,7 +40,10 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
   if (currentSuperset.exercises.length === 0) {
     return (
       <main className={styles.main}>
-        <p>This superset has no exercises. Remove it from the design screen.</p>
+        <p>This superset has no exercises yet.</p>
+        <Link href={`/sessions/${id}/design`} className={styles.editLink}>
+          Add one
+        </Link>
       </main>
     );
   }
