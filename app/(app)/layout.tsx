@@ -15,7 +15,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             Exercises
           </Link>
           <form action={signOut}>
-            <SubmitButton className={styles.signOut} pendingLabel="Signing out…">
+            <SubmitButton className={styles.signOut} gerund="Signing out">
               Sign out
             </SubmitButton>
           </form>

@@ -31,11 +31,7 @@ export function ExercisePicker({
           <li key={exercise.id}>
             <form action={addAction}>
               <input type="hidden" name="exerciseId" value={exercise.id} />
-              <SubmitButton
-                className={styles.resultButton}
-                fullWidth
-                pendingLabel={`Adding ${exercise.name}…`}
-              >
+              <SubmitButton className={styles.resultButton} gerund={`Adding ${exercise.name}`}>
                 {exercise.name}
               </SubmitButton>
             </form>

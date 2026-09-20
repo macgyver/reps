@@ -71,14 +71,8 @@
 }
 
 .addSupersetButton {
-  @include tap-target;
   width: 100%;
   margin-top: $space-4;
-  border: 1px dashed var(--border);
-  border-radius: $radius;
-  background: none;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .startButton {

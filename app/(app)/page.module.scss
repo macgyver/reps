@@ -9,15 +9,7 @@
 }
 
 .newSessionButton {
-  @include tap-target;
   width: 100%;
-  border: none;
-  border-radius: $radius;
-  background: var(--accent);
-  color: var(--accent-foreground);
-  font-size: $font-size-lg;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 .sessionList {

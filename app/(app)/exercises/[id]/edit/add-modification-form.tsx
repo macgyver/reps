@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import buttonStyles from "@/components/submit-button.module.scss";
 import { SubmitButton } from "@/components/submit-button";
 import { addModification, type AddModificationState } from "../../actions";
 import styles from "../../form.module.scss";
@@ -25,7 +26,7 @@ export function AddModificationForm({ exerciseId }: { exerciseId: string }) {
     <>
       <form key={formKey} action={formAction} className={styles.addModForm}>
         <input name="name" placeholder="e.g. + twist" required className={styles.input} />
-        <SubmitButton className={styles.addButton} pendingLabel="Adding modification…">
+        <SubmitButton className={buttonStyles.secondary} gerund="Adding">
           Add
         </SubmitButton>
       </form>

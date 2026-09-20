@@ -41,7 +41,7 @@ export default async function EditExercisePage({
                 <SubmitButton
                   className={styles.removeButton}
                   aria-label={`Remove ${mod.name}`}
-                  pendingLabel={`Removing ${mod.name}…`}
+                  gerund={`Removing ${mod.name}`}
                 >
                   Remove
                 </SubmitButton>

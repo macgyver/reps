@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import buttonStyles from "@/components/submit-button.module.scss";
 import { SubmitButton } from "@/components/submit-button";
 import { createExercise, type ExerciseFormState } from "../actions";
 import styles from "../form.module.scss";
@@ -32,7 +33,7 @@ export default function NewExercisePage() {
             {state.error}
           </p>
         ) : null}
-        <SubmitButton className={styles.submit} fullWidth pendingLabel="Creating exercise…">
+        <SubmitButton className={buttonStyles.primary} gerund="Creating">
           Create
         </SubmitButton>
       </form>

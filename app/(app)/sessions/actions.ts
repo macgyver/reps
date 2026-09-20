@@ -103,24 +103,24 @@ export async function removeSupersetExercise(sessionId: string, supersetExercise
 
 export type LogSetState = { error: string } | { success: true } | null;
 
+function parseNumber(formData: FormData, field: string): number | null {
+  let raw = formData.get(field);
+  return typeof raw === "string" && raw.trim() ? Number(raw) : null;
+}
+
 export async function logSet(
   sessionId: string,
   supersetExerciseId: string,
   _prevState: LogSetState,
   formData: FormData,
 ): Promise<LogSetState> {
-  let weightRaw = formData.get("weight");
-  let repsRaw = formData.get("reps");
-  let weight = typeof weightRaw === "string" && weightRaw.trim() ? Number(weightRaw) : null;
-  let reps = typeof repsRaw === "string" && repsRaw.trim() ? Number(repsRaw) : null;
-
   let supabase = await createClient();
   let { data, error } = await supabase
     .from("sets")
     .insert({
       superset_exercise_id: supersetExerciseId,
-      weight,
-      reps,
+      weight: parseNumber(formData, "weight"),
+      reps: parseNumber(formData, "reps"),
       notes: optionalText(formData, "notes"),
     })
     .select("id")
@@ -134,6 +134,52 @@ export async function logSet(
   if (modificationIds.length > 0) {
     let rows = modificationIds.map((modificationId) => ({
       set_id: data.id,
+      modification_id: modificationId,
+      value: optionalText(formData, `modValue_${modificationId}`),
+    }));
+    let { error: modError } = await supabase.from("set_modifications").insert(rows);
+    if (modError) {
+      return { error: modError.message };
+    }
+  }
+
+  revalidatePath(`/sessions/${sessionId}`);
+  return { success: true };
+}
+
+export async function updateSet(
+  sessionId: string,
+  setId: string,
+  _prevState: LogSetState,
+  formData: FormData,
+): Promise<LogSetState> {
+  let supabase = await createClient();
+  let { error } = await supabase
+    .from("sets")
+    .update({
+      weight: parseNumber(formData, "weight"),
+      reps: parseNumber(formData, "reps"),
+      notes: optionalText(formData, "notes"),
+    })
+    .eq("id", setId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  let { error: deleteError } = await supabase
+    .from("set_modifications")
+    .delete()
+    .eq("set_id", setId);
+
+  if (deleteError) {
+    return { error: deleteError.message };
+  }
+
+  let modificationIds = formData.getAll("modification").filter((v) => typeof v === "string");
+  if (modificationIds.length > 0) {
+    let rows = modificationIds.map((modificationId) => ({
+      set_id: setId,
       modification_id: modificationId,
       value: optionalText(formData, `modValue_${modificationId}`),
     }));

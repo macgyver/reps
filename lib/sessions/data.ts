@@ -47,6 +47,7 @@ export async function getSessionsForUser(): Promise<SessionSummary[]> {
 
 export type LoggedSetModification = {
   id: string;
+  modificationId: string;
   value: string | null;
   modificationName: string;
 };
@@ -152,7 +153,7 @@ const SESSION_WITH_SETS_SELECT = `
         weight,
         reps,
         notes,
-        modifications:set_modifications(id, value, modification:exercise_modifications(name))
+        modifications:set_modifications(id, modificationId:modification_id, value, modification:exercise_modifications(name))
       )
     )
   )
@@ -200,6 +201,7 @@ export async function getSessionWithSets(id: string): Promise<SessionWithSets | 
             notes: set.notes,
             modifications: set.modifications.map((mod) => ({
               id: mod.id,
+              modificationId: mod.modificationId,
               value: mod.value,
               modificationName: (mod.modification as unknown as { name: string }).name,
             })),

@@ -38,7 +38,7 @@ export default function LoginPage() {
             {state.error}
           </p>
         ) : null}
-        <SubmitButton className={styles.submit} fullWidth pendingLabel="Sending magic link…">
+        <SubmitButton className={styles.submit} gerund="Sending">
           Send magic link
         </SubmitButton>
       </form>

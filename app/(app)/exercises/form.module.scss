@@ -37,25 +37,8 @@
   resize: vertical;
 }
 
-.submit {
-  @include tap-target;
-  margin-top: $space-2;
-  border: none;
-  border-radius: $radius;
-  background: var(--accent);
-  color: var(--accent-foreground);
-  font-size: $font-size-lg;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .error {
   color: var(--danger);
-  font-size: $font-size-sm;
-}
-
-.success {
-  color: var(--accent);
   font-size: $font-size-sm;
 }
 
@@ -105,12 +88,3 @@
   flex: 1;
 }
 
-.addButton {
-  @include tap-target;
-  padding: 0 $space-4;
-  border: 1px solid var(--border);
-  border-radius: $radius;
-  background: var(--surface);
-  font-weight: 600;
-  cursor: pointer;
-}

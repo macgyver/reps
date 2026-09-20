@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import buttonStyles from "@/components/submit-button.module.scss";
 import { SubmitButton } from "@/components/submit-button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getExercises } from "@/lib/exercises/data";
@@ -49,7 +50,7 @@ export default async function DesignSessionPage({
             <div className={styles.supersetHeader}>
               <span>Superset {index + 1}</span>
               <form action={removeSuperset.bind(null, id, superset.id)}>
-                <SubmitButton className={styles.removeButton} pendingLabel="Removing superset…">
+                <SubmitButton className={styles.removeButton} gerund="Removing superset">
                   Remove
                 </SubmitButton>
               </form>
@@ -61,7 +62,7 @@ export default async function DesignSessionPage({
                   <form action={removeSupersetExercise.bind(null, id, exercise.id)}>
                     <SubmitButton
                       className={styles.removeButton}
-                      pendingLabel={`Removing ${exercise.exerciseName}…`}
+                      gerund={`Removing ${exercise.exerciseName}`}
                     >
                       Remove
                     </SubmitButton>
@@ -81,7 +82,10 @@ export default async function DesignSessionPage({
       </ol>
 
       <form action={addSuperset.bind(null, id)}>
-        <SubmitButton className={styles.addSupersetButton} fullWidth pendingLabel="Adding superset…">
+        <SubmitButton
+          className={`${buttonStyles.secondary} ${styles.addSupersetButton}`}
+          gerund="Adding superset"
+        >
           + Add superset
         </SubmitButton>
       </form>

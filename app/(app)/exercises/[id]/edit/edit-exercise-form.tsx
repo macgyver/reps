@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import buttonStyles from "@/components/submit-button.module.scss";
 import { SubmitButton } from "@/components/submit-button";
 import type { Exercise } from "@/lib/exercises/data";
 import { updateExercise, type ExerciseFormState } from "../../actions";
@@ -44,8 +45,12 @@ export function EditExerciseForm({ exercise }: { exercise: Exercise }) {
           {state.error}
         </p>
       ) : null}
-      {state && "saved" in state ? <p className={styles.success}>Saved.</p> : null}
-      <SubmitButton className={styles.submit} fullWidth pendingLabel="Saving…">
+      <SubmitButton
+        className={buttonStyles.primary}
+        gerund="Saving"
+        pastParticiple="Saved"
+        succeeded={!!(state && "saved" in state)}
+      >
         Save
       </SubmitButton>
     </form>
