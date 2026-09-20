@@ -92,8 +92,6 @@ export function MuscleGroupPicker({
           <desc>Front view — tap a muscle group to toggle it</desc>
           <circle className={styles.decorative} cx="80" cy="22" r="18" />
           <rect className={styles.decorative} x="72" y="38" width="16" height="10" rx="3" />
-          <ellipse className={styles.decorative} cx="60" cy="308" rx="14" ry="7" />
-          <ellipse className={styles.decorative} cx="100" cy="308" rx="14" ry="7" />
           <rect className={styles.decorative} x="48" y="230" width="24" height="70" rx="10" />
           <rect className={styles.decorative} x="88" y="230" width="24" height="70" rx="10" />
 
@@ -129,8 +127,6 @@ export function MuscleGroupPicker({
           <desc>Back view — tap a muscle group to toggle it</desc>
           <circle className={styles.decorative} cx="80" cy="22" r="18" />
           <rect className={styles.decorative} x="72" y="38" width="16" height="10" rx="3" />
-          <ellipse className={styles.decorative} cx="60" cy="308" rx="14" ry="7" />
-          <ellipse className={styles.decorative} cx="100" cy="308" rx="14" ry="7" />
 
           <Region muscleKey="traps" selected={selected.has("traps")} onToggle={toggle}>
             <rect x="58" y="40" width="44" height="24" rx="8" />
