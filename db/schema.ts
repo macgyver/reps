@@ -42,31 +42,23 @@ export const sessions = pgTable("sessions", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
 }).enableRLS();
 
-export const supersets = pgTable("supersets", {
+export const sessionExercises = pgTable("session_exercises", {
   id: uuid("id").primaryKey().defaultRandom(),
   sessionId: uuid("session_id")
     .notNull()
     .references(() => sessions.id, { onDelete: "cascade" }),
-  position: integer("position").notNull(),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
-}).enableRLS();
-
-export const supersetExercises = pgTable("superset_exercises", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  supersetId: uuid("superset_id")
-    .notNull()
-    .references(() => supersets.id, { onDelete: "cascade" }),
   exerciseId: uuid("exercise_id")
     .notNull()
     .references(() => exercises.id),
   position: integer("position").notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
 }).enableRLS();
 
 export const sets = pgTable("sets", {
   id: uuid("id").primaryKey().defaultRandom(),
-  supersetExerciseId: uuid("superset_exercise_id")
+  sessionExerciseId: uuid("session_exercise_id")
     .notNull()
-    .references(() => supersetExercises.id, { onDelete: "cascade" }),
+    .references(() => sessionExercises.id, { onDelete: "cascade" }),
   performedAt: timestamp("performed_at", { withTimezone: true }).defaultNow(),
   weight: numeric("weight", { mode: "number" }),
   reps: integer("reps"),

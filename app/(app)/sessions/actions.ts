@@ -21,48 +21,10 @@ export async function createSession() {
     redirect(`/?error=${encodeURIComponent(error?.message ?? "Could not create session")}`);
   }
 
-  // Start with one empty superset already in place so the design screen is
-  // immediately ready for picking an exercise, no "+ Add superset" click needed.
-  await supabase.from("supersets").insert({ session_id: data.id, position: 0 });
-
   redirect(`/sessions/${data.id}/design`);
 }
 
-export async function addSuperset(sessionId: string) {
-  let supabase = await createClient();
-  let { count } = await supabase
-    .from("supersets")
-    .select("id", { count: "exact", head: true })
-    .eq("session_id", sessionId);
-
-  let { error } = await supabase.from("supersets").insert({
-    session_id: sessionId,
-    position: count ?? 0,
-  });
-
-  if (error) {
-    redirect(`/sessions/${sessionId}/design?error=${encodeURIComponent(error.message)}`);
-  }
-
-  revalidatePath(`/sessions/${sessionId}/design`);
-}
-
-export async function removeSuperset(sessionId: string, supersetId: string) {
-  let supabase = await createClient();
-  let { error } = await supabase.from("supersets").delete().eq("id", supersetId);
-
-  if (error) {
-    redirect(`/sessions/${sessionId}/design?error=${encodeURIComponent(error.message)}`);
-  }
-
-  revalidatePath(`/sessions/${sessionId}/design`);
-}
-
-export async function addExerciseToSuperset(
-  sessionId: string,
-  supersetId: string,
-  formData: FormData,
-) {
+export async function addExerciseToSession(sessionId: string, formData: FormData) {
   let exerciseId = formData.get("exerciseId");
   if (typeof exerciseId !== "string" || !exerciseId) {
     redirect(`/sessions/${sessionId}/design?error=Pick an exercise`);
@@ -70,12 +32,12 @@ export async function addExerciseToSuperset(
 
   let supabase = await createClient();
   let { count } = await supabase
-    .from("superset_exercises")
+    .from("session_exercises")
     .select("id", { count: "exact", head: true })
-    .eq("superset_id", supersetId);
+    .eq("session_id", sessionId);
 
-  let { error } = await supabase.from("superset_exercises").insert({
-    superset_id: supersetId,
+  let { error } = await supabase.from("session_exercises").insert({
+    session_id: sessionId,
     exercise_id: exerciseId,
     position: count ?? 0,
   });
@@ -87,12 +49,12 @@ export async function addExerciseToSuperset(
   revalidatePath(`/sessions/${sessionId}/design`);
 }
 
-export async function removeSupersetExercise(sessionId: string, supersetExerciseId: string) {
+export async function removeSessionExercise(sessionId: string, sessionExerciseId: string) {
   let supabase = await createClient();
   let { error } = await supabase
-    .from("superset_exercises")
+    .from("session_exercises")
     .delete()
-    .eq("id", supersetExerciseId);
+    .eq("id", sessionExerciseId);
 
   if (error) {
     redirect(`/sessions/${sessionId}/design?error=${encodeURIComponent(error.message)}`);
@@ -110,7 +72,7 @@ function parseNumber(formData: FormData, field: string): number | null {
 
 export async function logSet(
   sessionId: string,
-  supersetExerciseId: string,
+  sessionExerciseId: string,
   _prevState: LogSetState,
   formData: FormData,
 ): Promise<LogSetState> {
@@ -118,7 +80,7 @@ export async function logSet(
   let { data, error } = await supabase
     .from("sets")
     .insert({
-      superset_exercise_id: supersetExerciseId,
+      session_exercise_id: sessionExerciseId,
       weight: parseNumber(formData, "weight"),
       reps: parseNumber(formData, "reps"),
       notes: optionalText(formData, "notes"),
@@ -193,21 +155,21 @@ export async function updateSet(
   return { success: true };
 }
 
-export async function completeSuperset(sessionId: string, supersetId: string) {
+export async function completeExercise(sessionId: string, sessionExerciseId: string) {
   let supabase = await createClient();
   let now = new Date().toISOString();
 
   let { error } = await supabase
-    .from("supersets")
+    .from("session_exercises")
     .update({ completed_at: now })
-    .eq("id", supersetId);
+    .eq("id", sessionExerciseId);
 
   if (error) {
     redirect(`/sessions/${sessionId}?error=${encodeURIComponent(error.message)}`);
   }
 
   let { count } = await supabase
-    .from("supersets")
+    .from("session_exercises")
     .select("id", { count: "exact", head: true })
     .eq("session_id", sessionId)
     .is("completed_at", null);

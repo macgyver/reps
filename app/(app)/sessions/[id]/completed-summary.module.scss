@@ -14,22 +14,18 @@
   margin-bottom: $space-4;
 }
 
-.supersetList {
+.exerciseList {
   display: flex;
   flex-direction: column;
-  gap: $space-6;
+  gap: $space-4;
   list-style: none;
 }
 
-.superset {
+.exercise {
   padding: $space-4;
   border: 1px solid var(--border);
   border-radius: $radius;
   background: var(--surface);
-}
-
-.exercise {
-  margin-top: $space-3;
 }
 
 .setList {

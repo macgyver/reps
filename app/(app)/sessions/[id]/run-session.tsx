@@ -3,27 +3,26 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { SubmitButton } from "@/components/submit-button";
-import type { LoggedSet, SessionSupersetWithSets } from "@/lib/sessions/data";
-import { completeSuperset, logSet, updateSet, type LogSetState } from "../actions";
+import type { LoggedSet, SessionExerciseWithSets } from "@/lib/sessions/data";
+import { completeExercise, logSet, updateSet, type LogSetState } from "../actions";
 import styles from "./run-session.module.scss";
 
 export function RunSession({
   sessionId,
-  superset,
-  isLastSuperset,
+  exercise,
+  position,
+  total,
+  isLastExercise,
 }: {
   sessionId: string;
-  superset: SessionSupersetWithSets;
-  isLastSuperset: boolean;
+  exercise: SessionExerciseWithSets;
+  position: number;
+  total: number;
+  isLastExercise: boolean;
 }) {
-  let [exerciseIndex, setExerciseIndex] = useState(0);
   let [checkedMods, setCheckedMods] = useState<string[]>([]);
   let [formKey, setFormKey] = useState(0);
   let [editingSet, setEditingSet] = useState<LoggedSet | null>(null);
-
-  let exercisePosition = (exerciseIndex % superset.exercises.length) + 1;
-  let exercise = superset.exercises[exerciseIndex % superset.exercises.length];
-  let isSingleExercise = superset.exercises.length === 1;
 
   let action = editingSet
     ? updateSet.bind(null, sessionId, editingSet.id)
@@ -42,13 +41,6 @@ export function RunSession({
 
   function toggleMod(id: string) {
     setCheckedMods((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]));
-  }
-
-  function nextExercise() {
-    setExerciseIndex((i) => i + 1);
-    setEditingSet(null);
-    setCheckedMods([]);
-    setFormKey((k) => k + 1);
   }
 
   function startEditingSet(set: LoggedSet) {
@@ -87,19 +79,14 @@ export function RunSession({
   return (
     <div className={styles.container}>
       <div className={styles.topRow}>
-        <p className={styles.supersetLabel}>
-          Superset {isSingleExercise ? "" : `— exercise ${exercisePosition} of ${superset.exercises.length}`}
+        <p className={styles.positionLabel}>
+          Exercise {position} of {total}
         </p>
         <Link href={`/sessions/${sessionId}/design`} className={styles.editLink}>
           Edit session
         </Link>
       </div>
-      <h1 className={styles.exerciseName}>
-        <span className={styles.exercisePosition}>
-          {exercisePosition}/{superset.exercises.length}
-        </span>{" "}
-        {exercise.exerciseName}
-      </h1>
+      <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
 
       {setsBeforeForm.length > 0 ? (
         <ul className={styles.previousSets}>
@@ -210,15 +197,12 @@ export function RunSession({
       ) : null}
 
       <div className={styles.navRow}>
-        <button type="button" className={styles.nextButton} onClick={nextExercise}>
-          {isSingleExercise ? "Next set" : "Next exercise"}
-        </button>
-        <form action={completeSuperset.bind(null, sessionId, superset.id)}>
+        <form action={completeExercise.bind(null, sessionId, exercise.id)}>
           <SubmitButton
             className={styles.completeButton}
-            gerund={isLastSuperset ? "Finishing session" : "Completing superset"}
+            gerund={isLastExercise ? "Finishing session" : "Completing exercise"}
           >
-            {isLastSuperset ? "Finish session" : "Complete superset"}
+            {isLastExercise ? "Finish session" : "Complete exercise"}
           </SubmitButton>
         </form>
       </div>

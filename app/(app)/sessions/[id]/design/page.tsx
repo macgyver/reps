@@ -1,16 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import buttonStyles from "@/components/submit-button.module.scss";
 import { SubmitButton } from "@/components/submit-button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getExercises } from "@/lib/exercises/data";
 import { getSession } from "@/lib/sessions/data";
-import {
-  addExerciseToSuperset,
-  addSuperset,
-  removeSuperset,
-  removeSupersetExercise,
-} from "../../actions";
+import { addExerciseToSession, removeSessionExercise } from "../../actions";
 import { ExercisePicker } from "./exercise-picker";
 import styles from "./page.module.scss";
 
@@ -33,7 +27,7 @@ export default async function DesignSessionPage({
   if (session.userId !== user?.id) redirect("/");
   if (session.completedAt) redirect(`/sessions/${id}`);
 
-  let canStart = session.supersets.some((superset) => superset.exercises.length > 0);
+  let canStart = session.exercises.length > 0;
 
   return (
     <main className={styles.main}>
@@ -44,51 +38,26 @@ export default async function DesignSessionPage({
         </p>
       ) : null}
 
-      <ol className={styles.supersetList}>
-        {session.supersets.map((superset, index) => (
-          <li key={superset.id} className={styles.superset}>
-            <div className={styles.supersetHeader}>
-              <span>Superset {index + 1}</span>
-              <form action={removeSuperset.bind(null, id, superset.id)}>
-                <SubmitButton className={styles.removeButton} gerund="Removing superset">
-                  Remove
-                </SubmitButton>
-              </form>
-            </div>
-            <ul className={styles.exerciseList}>
-              {superset.exercises.map((exercise) => (
-                <li key={exercise.id} className={styles.exerciseRow}>
-                  <span>{exercise.exerciseName}</span>
-                  <form action={removeSupersetExercise.bind(null, id, exercise.id)}>
-                    <SubmitButton
-                      className={styles.removeButton}
-                      gerund={`Removing ${exercise.exerciseName}`}
-                    >
-                      Remove
-                    </SubmitButton>
-                  </form>
-                </li>
-              ))}
-              {superset.exercises.length === 0 ? (
-                <li className={styles.empty}>No exercises yet.</li>
-              ) : null}
-            </ul>
-            <ExercisePicker
-              exercises={exercises}
-              addAction={addExerciseToSuperset.bind(null, id, superset.id)}
-            />
+      <ul className={styles.exerciseList}>
+        {session.exercises.map((exercise) => (
+          <li key={exercise.id} className={styles.exerciseRow}>
+            <span>{exercise.exerciseName}</span>
+            <form action={removeSessionExercise.bind(null, id, exercise.id)}>
+              <SubmitButton
+                className={styles.removeButton}
+                gerund={`Removing ${exercise.exerciseName}`}
+              >
+                Remove
+              </SubmitButton>
+            </form>
           </li>
         ))}
-      </ol>
+        {session.exercises.length === 0 ? (
+          <li className={styles.empty}>No exercises yet.</li>
+        ) : null}
+      </ul>
 
-      <form action={addSuperset.bind(null, id)}>
-        <SubmitButton
-          className={`${buttonStyles.secondary} ${styles.addSupersetButton}`}
-          gerund="Adding superset"
-        >
-          + Add superset
-        </SubmitButton>
-      </form>
+      <ExercisePicker exercises={exercises} addAction={addExerciseToSession.bind(null, id)} />
 
       {canStart ? (
         <Link href={`/sessions/${id}`} className={styles.startButton}>

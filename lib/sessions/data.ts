@@ -5,19 +5,13 @@ export type ExerciseModification = {
   name: string;
 };
 
-export type SessionSupersetExercise = {
-  id: string;
-  position: number;
-  exerciseId: string;
-  exerciseName: string;
-  modifications: ExerciseModification[];
-};
-
-export type SessionSuperset = {
+export type SessionExercise = {
   id: string;
   position: number;
   completedAt: string | null;
-  exercises: SessionSupersetExercise[];
+  exerciseId: string;
+  exerciseName: string;
+  modifications: ExerciseModification[];
 };
 
 export type Session = {
@@ -25,7 +19,7 @@ export type Session = {
   userId: string;
   createdAt: string;
   completedAt: string | null;
-  supersets: SessionSuperset[];
+  exercises: SessionExercise[];
 };
 
 export type SessionSummary = {
@@ -61,16 +55,12 @@ export type LoggedSet = {
   modifications: LoggedSetModification[];
 };
 
-export type SessionSupersetExerciseWithSets = SessionSupersetExercise & {
+export type SessionExerciseWithSets = SessionExercise & {
   sets: LoggedSet[];
 };
 
-export type SessionSupersetWithSets = Omit<SessionSuperset, "exercises"> & {
-  exercises: SessionSupersetExerciseWithSets[];
-};
-
-export type SessionWithSets = Omit<Session, "supersets"> & {
-  supersets: SessionSupersetWithSets[];
+export type SessionWithSets = Omit<Session, "exercises"> & {
+  exercises: SessionExerciseWithSets[];
 };
 
 const SESSION_SELECT = `
@@ -78,16 +68,12 @@ const SESSION_SELECT = `
   userId:user_id,
   createdAt:created_at,
   completedAt:completed_at,
-  supersets(
+  exercises:session_exercises(
     id,
     position,
     completedAt:completed_at,
-    exercises:superset_exercises(
-      id,
-      position,
-      exerciseId:exercise_id,
-      exercise:exercises(name, modifications:exercise_modifications(id, name))
-    )
+    exerciseId:exercise_id,
+    exercise:exercises(name, modifications:exercise_modifications(id, name))
   )
 `;
 
@@ -97,8 +83,7 @@ export async function getSession(id: string): Promise<Session | null> {
     .from("sessions")
     .select(SESSION_SELECT)
     .eq("id", id)
-    .order("position", { referencedTable: "supersets" })
-    .order("position", { referencedTable: "supersets.superset_exercises" })
+    .order("position", { referencedTable: "session_exercises" })
     .maybeSingle();
 
   if (error) throw error;
@@ -109,27 +94,23 @@ export async function getSession(id: string): Promise<Session | null> {
     userId: data.userId,
     createdAt: data.createdAt,
     completedAt: data.completedAt,
-    supersets: data.supersets.map((superset) => ({
-      id: superset.id,
-      position: superset.position,
-      completedAt: superset.completedAt,
-      exercises: superset.exercises.map((exercise) => {
-        // supabase-js can't infer this embed is to-one from an untyped
-        // query — at runtime PostgREST returns a single object here since
-        // superset_exercises.exercise_id -> exercises.id is many-to-one.
-        let ex = exercise.exercise as unknown as {
-          name: string;
-          modifications: ExerciseModification[];
-        };
-        return {
-          id: exercise.id,
-          position: exercise.position,
-          exerciseId: exercise.exerciseId,
-          exerciseName: ex.name,
-          modifications: ex.modifications,
-        };
-      }),
-    })),
+    exercises: data.exercises.map((exercise) => {
+      // supabase-js can't infer this embed is to-one from an untyped
+      // query — at runtime PostgREST returns a single object here since
+      // session_exercises.exercise_id -> exercises.id is many-to-one.
+      let ex = exercise.exercise as unknown as {
+        name: string;
+        modifications: ExerciseModification[];
+      };
+      return {
+        id: exercise.id,
+        position: exercise.position,
+        completedAt: exercise.completedAt,
+        exerciseId: exercise.exerciseId,
+        exerciseName: ex.name,
+        modifications: ex.modifications,
+      };
+    }),
   };
 }
 
@@ -138,23 +119,19 @@ const SESSION_WITH_SETS_SELECT = `
   userId:user_id,
   createdAt:created_at,
   completedAt:completed_at,
-  supersets(
+  exercises:session_exercises(
     id,
     position,
     completedAt:completed_at,
-    exercises:superset_exercises(
+    exerciseId:exercise_id,
+    exercise:exercises(name, modifications:exercise_modifications(id, name)),
+    sets(
       id,
-      position,
-      exerciseId:exercise_id,
-      exercise:exercises(name, modifications:exercise_modifications(id, name)),
-      sets(
-        id,
-        performedAt:performed_at,
-        weight,
-        reps,
-        notes,
-        modifications:set_modifications(id, modificationId:modification_id, value, modification:exercise_modifications(name))
-      )
+      performedAt:performed_at,
+      weight,
+      reps,
+      notes,
+      modifications:set_modifications(id, modificationId:modification_id, value, modification:exercise_modifications(name))
     )
   )
 `;
@@ -165,9 +142,8 @@ export async function getSessionWithSets(id: string): Promise<SessionWithSets | 
     .from("sessions")
     .select(SESSION_WITH_SETS_SELECT)
     .eq("id", id)
-    .order("position", { referencedTable: "supersets" })
-    .order("position", { referencedTable: "supersets.superset_exercises" })
-    .order("performed_at", { referencedTable: "supersets.superset_exercises.sets" })
+    .order("position", { referencedTable: "session_exercises" })
+    .order("performed_at", { referencedTable: "session_exercises.sets" })
     .maybeSingle();
 
   if (error) throw error;
@@ -178,36 +154,34 @@ export async function getSessionWithSets(id: string): Promise<SessionWithSets | 
     userId: data.userId,
     createdAt: data.createdAt,
     completedAt: data.completedAt,
-    supersets: data.supersets.map((superset) => ({
-      id: superset.id,
-      position: superset.position,
-      completedAt: superset.completedAt,
-      exercises: superset.exercises.map((exercise) => {
-        let ex = exercise.exercise as unknown as {
-          name: string;
-          modifications: ExerciseModification[];
-        };
-        return {
-          id: exercise.id,
-          position: exercise.position,
-          exerciseId: exercise.exerciseId,
-          exerciseName: ex.name,
-          modifications: ex.modifications,
-          sets: exercise.sets.map((set) => ({
-            id: set.id,
-            performedAt: set.performedAt,
-            weight: set.weight,
-            reps: set.reps,
-            notes: set.notes,
-            modifications: set.modifications.map((mod) => ({
+    exercises: data.exercises.map((exercise) => {
+      let ex = exercise.exercise as unknown as {
+        name: string;
+        modifications: ExerciseModification[];
+      };
+      return {
+        id: exercise.id,
+        position: exercise.position,
+        completedAt: exercise.completedAt,
+        exerciseId: exercise.exerciseId,
+        exerciseName: ex.name,
+        modifications: ex.modifications,
+        sets: exercise.sets.map((set) => ({
+          id: set.id,
+          performedAt: set.performedAt,
+          weight: set.weight,
+          reps: set.reps,
+          notes: set.notes,
+          modifications: set.modifications.map(
+            (mod: { id: string; modificationId: string; value: string | null; modification: unknown }) => ({
               id: mod.id,
               modificationId: mod.modificationId,
               value: mod.value,
               modificationName: (mod.modification as unknown as { name: string }).name,
-            })),
-          })),
-        };
-      }),
-    })),
+            }),
+          ),
+        })),
+      };
+    }),
   };
 }

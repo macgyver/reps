@@ -15,33 +15,11 @@
   margin-top: $space-2;
 }
 
-.supersetList {
-  display: flex;
-  flex-direction: column;
-  gap: $space-4;
-  margin-top: $space-4;
-  list-style: none;
-}
-
-.superset {
-  padding: $space-4;
-  border: 1px solid var(--border);
-  border-radius: $radius;
-  background: var(--surface);
-}
-
-.supersetHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 600;
-}
-
 .exerciseList {
   display: flex;
   flex-direction: column;
   gap: $space-2;
-  margin-top: $space-3;
+  margin-top: $space-4;
   list-style: none;
 }
 
@@ -52,7 +30,7 @@
   padding: $space-2 $space-3;
   border: 1px solid var(--border);
   border-radius: $radius;
-  background: var(--background);
+  background: var(--surface);
 }
 
 .removeButton {
@@ -68,11 +46,6 @@
 .empty {
   color: var(--muted);
   font-size: $font-size-sm;
-}
-
-.addSupersetButton {
-  width: 100%;
-  margin-top: $space-4;
 }
 
 .startButton {

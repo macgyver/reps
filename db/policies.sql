@@ -30,52 +30,35 @@ create policy "exercise_modifications_delete_own" on "exercise_modifications" as
 drop policy if exists "sessions_all_own" on "sessions";
 create policy "sessions_all_own" on "sessions" as permissive for all to "authenticated" using (user_id = auth.uid()) with check (user_id = auth.uid());
 
-drop policy if exists "supersets_all_own" on "supersets";
-create policy "supersets_all_own" on "supersets" as permissive for all to "authenticated"
+drop policy if exists "session_exercises_all_own" on "session_exercises";
+create policy "session_exercises_all_own" on "session_exercises" as permissive for all to "authenticated"
   using (exists (select 1 from sessions s where s.id = session_id and s.user_id = auth.uid()))
   with check (exists (select 1 from sessions s where s.id = session_id and s.user_id = auth.uid()));
-
-drop policy if exists "superset_exercises_all_own" on "superset_exercises";
-create policy "superset_exercises_all_own" on "superset_exercises" as permissive for all to "authenticated"
-  using (exists (
-    select 1 from supersets ss
-    join sessions s on s.id = ss.session_id
-    where ss.id = superset_id and s.user_id = auth.uid()
-  ))
-  with check (exists (
-    select 1 from supersets ss
-    join sessions s on s.id = ss.session_id
-    where ss.id = superset_id and s.user_id = auth.uid()
-  ));
 
 drop policy if exists "sets_all_own" on "sets";
 create policy "sets_all_own" on "sets" as permissive for all to "authenticated"
   using (exists (
-    select 1 from superset_exercises se
-    join supersets ss on ss.id = se.superset_id
-    join sessions s on s.id = ss.session_id
-    where se.id = superset_exercise_id and s.user_id = auth.uid()
+    select 1 from session_exercises se
+    join sessions s on s.id = se.session_id
+    where se.id = session_exercise_id and s.user_id = auth.uid()
   ))
   with check (exists (
-    select 1 from superset_exercises se
-    join supersets ss on ss.id = se.superset_id
-    join sessions s on s.id = ss.session_id
-    where se.id = superset_exercise_id and s.user_id = auth.uid()
+    select 1 from session_exercises se
+    join sessions s on s.id = se.session_id
+    where se.id = session_exercise_id and s.user_id = auth.uid()
   ));
 
 drop policy if exists "set_modifications_all_own" on "set_modifications";
 create policy "set_modifications_all_own" on "set_modifications" as permissive for all to "authenticated"
   using (exists (
     select 1 from sets st
-    join superset_exercises se on se.id = st.superset_exercise_id
-    join supersets ss on ss.id = se.superset_id
-    join sessions s on s.id = ss.session_id
+    join session_exercises se on se.id = st.session_exercise_id
+    join sessions s on s.id = se.session_id
     where st.id = set_id and s.user_id = auth.uid()
   ))
   with check (exists (
     select 1 from sets st
-    join superset_exercises se on se.id = st.superset_exercise_id
-    join supersets ss on ss.id = se.superset_id
-    join sessions s on s.id = ss.session_id
+    join session_exercises se on se.id = st.session_exercise_id
+    join sessions s on s.id = se.session_id
     where st.id = set_id and s.user_id = auth.uid()
   ));

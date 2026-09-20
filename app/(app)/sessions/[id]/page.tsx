@@ -19,12 +19,18 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     return <CompletedSummary session={session} />;
   }
 
-  let currentSupersetIndex = session.supersets.findIndex((superset) => !superset.completedAt);
+  if (session.exercises.length === 0) {
+    // Nothing to run yet — adding an exercise is the only thing to do here,
+    // so skip straight to the design screen instead of a dead-end message.
+    redirect(`/sessions/${id}/design`);
+  }
 
-  if (currentSupersetIndex === -1) {
+  let currentIndex = session.exercises.findIndex((exercise) => !exercise.completedAt);
+
+  if (currentIndex === -1) {
     return (
       <main className={styles.main}>
-        <p>All supersets are complete.</p>
+        <p>All exercises are complete.</p>
         <Link href={`/sessions/${id}/design`} className={styles.editLink}>
           Edit session
         </Link>
@@ -32,14 +38,13 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  let currentSuperset = session.supersets[currentSupersetIndex];
-  let isLastSuperset = currentSupersetIndex === session.supersets.length - 1;
-
-  if (currentSuperset.exercises.length === 0) {
-    // Nothing to run yet — adding an exercise is the only thing to do here,
-    // so skip straight to the design screen instead of a dead-end message.
-    redirect(`/sessions/${id}/design`);
-  }
-
-  return <RunSession sessionId={id} superset={currentSuperset} isLastSuperset={isLastSuperset} />;
+  return (
+    <RunSession
+      sessionId={id}
+      exercise={session.exercises[currentIndex]}
+      position={currentIndex + 1}
+      total={session.exercises.length}
+      isLastExercise={currentIndex === session.exercises.length - 1}
+    />
+  );
 }

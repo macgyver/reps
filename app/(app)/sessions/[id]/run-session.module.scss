@@ -17,7 +17,7 @@
   gap: $space-3;
 }
 
-.supersetLabel {
+.positionLabel {
   color: var(--muted);
   font-size: $font-size-sm;
 }
@@ -36,12 +36,6 @@
 .exerciseName {
   font-size: $font-size-2xl;
   margin-bottom: $space-4;
-}
-
-.exercisePosition {
-  color: var(--muted);
-  font-size: $font-size-lg;
-  font-weight: 400;
 }
 
 .previousSets {
@@ -213,7 +207,6 @@
   margin-top: $space-6;
 }
 
-.nextButton,
 .completeButton {
   @include tap-target;
   flex: 1;
@@ -222,14 +215,6 @@
   font-size: $font-size-base;
   font-weight: 600;
   cursor: pointer;
-}
-
-.nextButton {
-  border: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.completeButton {
   border: none;
   background: var(--danger);
   color: var(--accent-foreground);
