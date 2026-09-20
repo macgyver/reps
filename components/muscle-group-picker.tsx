@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styles from "./muscle-group-picker.module.scss";
 
 export const MUSCLE_GROUPS = [
@@ -66,6 +66,7 @@ export function MuscleGroupPicker({
   defaultValue?: string[];
 }) {
   let [selected, setSelected] = useState<Set<string>>(new Set(defaultValue));
+  let wrapperRef = useRef<HTMLDivElement>(null);
 
   function toggle(key: MuscleGroupKey) {
     setSelected((prev) => {
@@ -74,10 +75,14 @@ export function MuscleGroupPicker({
       else next.add(key);
       return next;
     });
+    // Clicking an SVG region doesn't fire a native input event the way a
+    // real form control would — dispatch one so ancestors (e.g. a submit
+    // button tracking "has this form been touched since it saved") see it.
+    wrapperRef.current?.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} ref={wrapperRef}>
       {Array.from(selected).map((key) => (
         <input key={key} type="hidden" name={name} value={key} />
       ))}
