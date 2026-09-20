@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import buttonStyles from "@/components/submit-button.module.scss";
+import { MuscleGroupPicker } from "@/components/muscle-group-picker";
 import { SubmitButton } from "@/components/submit-button";
 import { createExercise, type ExerciseFormState } from "../actions";
 import styles from "../form.module.scss";
@@ -17,6 +18,9 @@ export default function NewExercisePage() {
           Name
         </label>
         <input id="name" name="name" required autoFocus className={styles.input} />
+
+        <label className={styles.label}>Muscle groups</label>
+        <MuscleGroupPicker name="muscleGroup" />
 
 {/*        <label htmlFor="description" className={styles.label}>
           Description

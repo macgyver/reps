@@ -20,6 +20,8 @@ export async function createExercise(
   let user = await getCurrentUser();
   if (!user) redirect("/login");
 
+  let muscleGroups = formData.getAll("muscleGroup").filter((v) => typeof v === "string");
+
   let supabase = await createClient();
   let { data, error } = await supabase
     .from("exercises")
@@ -27,6 +29,7 @@ export async function createExercise(
       name,
       description: optionalText(formData, "description"),
       video_url: optionalText(formData, "videoUrl"),
+      muscle_groups: muscleGroups,
       created_by: user.id,
     })
     .select("id")
