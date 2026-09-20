@@ -50,6 +50,8 @@ export async function updateExercise(
     return { error: "Name is required" };
   }
 
+  let muscleGroups = formData.getAll("muscleGroup").filter((v) => typeof v === "string");
+
   let supabase = await createClient();
   let { error } = await supabase
     .from("exercises")
@@ -57,6 +59,7 @@ export async function updateExercise(
       name,
       description: optionalText(formData, "description"),
       video_url: optionalText(formData, "videoUrl"),
+      muscle_groups: muscleGroups,
     })
     .eq("id", exerciseId);
 

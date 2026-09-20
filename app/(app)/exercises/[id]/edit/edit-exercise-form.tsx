@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import buttonStyles from "@/components/submit-button.module.scss";
+import { MuscleGroupPicker } from "@/components/muscle-group-picker";
 import { SubmitButton } from "@/components/submit-button";
 import type { Exercise } from "@/lib/exercises/data";
 import { updateExercise, type ExerciseFormState } from "../../actions";
@@ -17,6 +18,9 @@ export function EditExerciseForm({ exercise }: { exercise: Exercise }) {
         Name
       </label>
       <input id="name" name="name" defaultValue={exercise.name} required className={styles.input} />
+
+      <label className={styles.label}>Muscle groups</label>
+      <MuscleGroupPicker name="muscleGroup" defaultValue={exercise.muscleGroups} />
 {/*
       <label htmlFor="description" className={styles.label}>
         Description

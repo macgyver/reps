@@ -10,12 +10,13 @@ export type Exercise = {
   name: string;
   description: string | null;
   videoUrl: string | null;
+  muscleGroups: string[];
   createdBy: string;
   modifications: ExerciseModification[];
 };
 
 const EXERCISE_SELECT =
-  "id, name, description, videoUrl:video_url, createdBy:created_by, modifications:exercise_modifications(id, name)";
+  "id, name, description, videoUrl:video_url, muscleGroups:muscle_groups, createdBy:created_by, modifications:exercise_modifications(id, name)";
 
 export async function getExercises(): Promise<Exercise[]> {
   let supabase = await createClient();

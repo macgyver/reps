@@ -18,6 +18,10 @@ export const exercises = pgTable("exercises", {
   name: text("name").notNull(),
   description: text("description"),
   videoUrl: text("video_url"),
+  // Fixed, known set of muscle group keys (see MUSCLE_GROUPS in
+  // components/muscle-group-picker.tsx) — a plain array column rather than a
+  // lookup table since the set of possible values isn't user-editable data.
+  muscleGroups: text("muscle_groups").array().notNull().default([]),
   createdBy: uuid("created_by")
     .notNull()
     .references(() => authUsers.id),

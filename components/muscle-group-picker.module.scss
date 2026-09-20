@@ -1,0 +1,62 @@
+@use "../styles/variables" as *;
+
+.wrapper {
+  margin-top: $space-2;
+}
+
+.diagrams {
+  display: flex;
+  gap: $space-4;
+  justify-content: center;
+}
+
+.body {
+  width: 100%;
+  max-width: 9rem;
+  height: auto;
+}
+
+.decorative {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.region {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.region rect,
+.region circle,
+.region ellipse {
+  transition: fill 0.15s ease;
+}
+
+.region:hover {
+  fill: var(--border);
+}
+
+.region:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.regionSelected {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.regionSelected:hover {
+  fill: var(--accent);
+}
+
+.hint {
+  margin-top: $space-3;
+  font-size: $font-size-sm;
+  color: var(--muted);
+  text-align: center;
+}
