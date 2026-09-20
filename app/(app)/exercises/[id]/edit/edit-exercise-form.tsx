@@ -17,7 +17,7 @@ export function EditExerciseForm({ exercise }: { exercise: Exercise }) {
         Name
       </label>
       <input id="name" name="name" defaultValue={exercise.name} required className={styles.input} />
-
+{/*
       <label htmlFor="description" className={styles.label}>
         Description
       </label>
@@ -39,7 +39,7 @@ export function EditExerciseForm({ exercise }: { exercise: Exercise }) {
         defaultValue={exercise.videoUrl ?? ""}
         className={styles.input}
       />
-
+*/}
       {state && "error" in state ? (
         <p role="alert" className={styles.error}>
           {state.error}

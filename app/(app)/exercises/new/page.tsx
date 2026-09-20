@@ -18,7 +18,7 @@ export default function NewExercisePage() {
         </label>
         <input id="name" name="name" required autoFocus className={styles.input} />
 
-        <label htmlFor="description" className={styles.label}>
+{/*        <label htmlFor="description" className={styles.label}>
           Description
         </label>
         <textarea id="description" name="description" rows={3} className={styles.textarea} />
@@ -27,7 +27,7 @@ export default function NewExercisePage() {
           Video demo URL
         </label>
         <input id="videoUrl" name="videoUrl" type="url" className={styles.input} />
-
+*/}
         {state && "error" in state ? (
           <p role="alert" className={styles.error}>
             {state.error}
