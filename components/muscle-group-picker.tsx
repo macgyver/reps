@@ -129,7 +129,7 @@ export function MuscleGroupPicker({
           <rect className={styles.decorative} x="72" y="38" width="16" height="10" rx="3" />
 
           <Region muscleKey="traps" selected={selected.has("traps")} onToggle={toggle}>
-            <rect x="58" y="40" width="44" height="24" rx="8" />
+            <rect x="45" y="40" width="70" height="24" rx="8" />
           </Region>
           <Region muscleKey="shoulders" selected={selected.has("shoulders")} onToggle={toggle}>
             <circle cx="30" cy="56" r="13" />
