@@ -36,7 +36,10 @@
   transition: fill 0.15s ease;
 }
 
-.region:hover {
+// Driven by JS (hovering one view's region highlights its counterpart in
+// the other view too), not the :hover pseudo-class — the mouse is only ever
+// over one of the two elements at a time.
+.regionHovered {
   fill: var(--border);
 }
 
@@ -50,7 +53,7 @@
   stroke: var(--accent);
 }
 
-.regionSelected:hover {
+.regionSelected.regionHovered {
   fill: var(--accent);
 }
 
