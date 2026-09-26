@@ -1,10 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type ExerciseModification = {
-  id: string;
-  name: string;
-};
-
 export type Exercise = {
   id: string;
   name: string;
@@ -12,18 +7,51 @@ export type Exercise = {
   videoUrl: string | null;
   muscleGroups: string[];
   createdBy: string;
-  modifications: ExerciseModification[];
+  parentExerciseId: string | null;
+  parentExerciseName: string | null;
 };
 
-const EXERCISE_SELECT =
-  "id, name, description, videoUrl:video_url, muscleGroups:muscle_groups, createdBy:created_by, modifications:exercise_modifications(id, name)";
+type ExerciseRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  videoUrl: string | null;
+  muscleGroups: string[];
+  createdBy: string;
+  parentExerciseId: string | null;
+  parent: { name: string } | null;
+};
+
+const EXERCISE_SELECT = `
+  id,
+  name,
+  description,
+  videoUrl:video_url,
+  muscleGroups:muscle_groups,
+  createdBy:created_by,
+  parentExerciseId:parent_exercise_id,
+  parent:exercises!parent_exercise_id(name)
+`;
+
+function mapExercise(row: ExerciseRow): Exercise {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    videoUrl: row.videoUrl,
+    muscleGroups: row.muscleGroups,
+    createdBy: row.createdBy,
+    parentExerciseId: row.parentExerciseId,
+    parentExerciseName: row.parent?.name ?? null,
+  };
+}
 
 export async function getExercises(): Promise<Exercise[]> {
   let supabase = await createClient();
   let { data, error } = await supabase.from("exercises").select(EXERCISE_SELECT).order("name");
 
   if (error) throw error;
-  return data ?? [];
+  return ((data ?? []) as unknown as ExerciseRow[]).map(mapExercise);
 }
 
 export async function getExercise(id: string): Promise<Exercise | null> {
@@ -35,5 +63,5 @@ export async function getExercise(id: string): Promise<Exercise | null> {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data ? mapExercise(data as unknown as ExerciseRow) : null;
 }

@@ -92,19 +92,6 @@ export async function logSet(
     return { error: error?.message ?? "Could not log set" };
   }
 
-  let modificationIds = formData.getAll("modification").filter((v) => typeof v === "string");
-  if (modificationIds.length > 0) {
-    let rows = modificationIds.map((modificationId) => ({
-      set_id: data.id,
-      modification_id: modificationId,
-      value: optionalText(formData, `modValue_${modificationId}`),
-    }));
-    let { error: modError } = await supabase.from("set_modifications").insert(rows);
-    if (modError) {
-      return { error: modError.message };
-    }
-  }
-
   revalidatePath(`/sessions/${sessionId}`);
   return { success: true };
 }
@@ -127,28 +114,6 @@ export async function updateSet(
 
   if (error) {
     return { error: error.message };
-  }
-
-  let { error: deleteError } = await supabase
-    .from("set_modifications")
-    .delete()
-    .eq("set_id", setId);
-
-  if (deleteError) {
-    return { error: deleteError.message };
-  }
-
-  let modificationIds = formData.getAll("modification").filter((v) => typeof v === "string");
-  if (modificationIds.length > 0) {
-    let rows = modificationIds.map((modificationId) => ({
-      set_id: setId,
-      modification_id: modificationId,
-      value: optionalText(formData, `modValue_${modificationId}`),
-    }));
-    let { error: modError } = await supabase.from("set_modifications").insert(rows);
-    if (modError) {
-      return { error: modError.message };
-    }
   }
 
   revalidatePath(`/sessions/${sessionId}`);

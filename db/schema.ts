@@ -1,4 +1,4 @@
-import { integer, numeric, pgSchema, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { AnyPgColumn, integer, numeric, pgSchema, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 // Stub for Supabase's built-in auth.users table, purely for FK typing.
 // drizzle.config.ts scopes push/introspect to the public schema, so this
@@ -22,18 +22,12 @@ export const exercises = pgTable("exercises", {
   // components/muscle-group-picker.tsx) — a plain array column rather than a
   // lookup table since the set of possible values isn't user-editable data.
   muscleGroups: text("muscle_groups").array().notNull().default([]),
+  // The more general exercise this one is a variant of (e.g. "deficit
+  // curtsy squat" -> "curtsy squat"), if any.
+  parentExerciseId: uuid("parent_exercise_id").references((): AnyPgColumn => exercises.id),
   createdBy: uuid("created_by")
     .notNull()
     .references(() => authUsers.id),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}).enableRLS();
-
-export const exerciseModifications = pgTable("exercise_modifications", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  exerciseId: uuid("exercise_id")
-    .notNull()
-    .references(() => exercises.id),
-  name: text("name").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }).enableRLS();
 
@@ -67,15 +61,4 @@ export const sets = pgTable("sets", {
   weight: numeric("weight", { mode: "number" }),
   reps: integer("reps"),
   notes: text("notes"),
-}).enableRLS();
-
-export const setModifications = pgTable("set_modifications", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  setId: uuid("set_id")
-    .notNull()
-    .references(() => sets.id, { onDelete: "cascade" }),
-  modificationId: uuid("modification_id")
-    .notNull()
-    .references(() => exerciseModifications.id),
-  value: text("value"),
 }).enableRLS();

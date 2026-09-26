@@ -24,15 +24,6 @@ export function CompletedSummary({ session }: { session: SessionWithSets }) {
                       {set.reps != null ? `${set.reps} reps` : null}
                       {set.weight == null && set.reps == null ? "—" : null}
                     </span>
-                    {set.modifications.length > 0 ? (
-                      <span className={styles.mods}>
-                        {set.modifications
-                          .map((m) =>
-                            m.value ? `${m.modificationName} (${m.value})` : m.modificationName,
-                          )
-                          .join(", ")}
-                      </span>
-                    ) : null}
                     {set.notes ? <span className={styles.notes}>{set.notes}</span> : null}
                   </li>
                 ))}

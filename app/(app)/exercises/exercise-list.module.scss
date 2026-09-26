@@ -58,10 +58,51 @@
   color: var(--accent);
 }
 
-.modifications {
+.parent {
   margin-top: $space-2;
   font-size: $font-size-sm;
   color: var(--muted);
+}
+
+.variants {
+  margin-top: $space-3;
+}
+
+.variantsToggle {
+  @include tap-target-sm;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: 0 $space-2;
+  margin: 0 (-$space-2);
+  color: var(--accent);
+  font-size: $font-size-sm;
+  cursor: pointer;
+  list-style: none;
+}
+
+.variantsToggle::-webkit-details-marker {
+  display: none;
+}
+
+.variantsToggle::before {
+  content: "▸";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.variants[open] > .variantsToggle::before {
+  transform: rotate(90deg);
+}
+
+.variantsList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  margin-top: $space-3;
+  padding-left: $space-4;
+  border-left: 2px solid var(--border);
+  list-style: none;
 }
 
 .empty {

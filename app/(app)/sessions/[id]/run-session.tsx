@@ -20,7 +20,6 @@ export function RunSession({
   total: number;
   isLastExercise: boolean;
 }) {
-  let [checkedMods, setCheckedMods] = useState<string[]>([]);
   let [formKey, setFormKey] = useState(0);
   let [editingSet, setEditingSet] = useState<LoggedSet | null>(null);
 
@@ -34,23 +33,16 @@ export function RunSession({
     setHandledState(state);
     if (state && "success" in state) {
       setEditingSet(null);
-      setCheckedMods([]);
       setFormKey((k) => k + 1);
     }
   }
 
-  function toggleMod(id: string) {
-    setCheckedMods((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]));
-  }
-
   function startEditingSet(set: LoggedSet) {
     setEditingSet(set);
-    setCheckedMods(set.modifications.map((mod) => mod.modificationId));
   }
 
   function cancelEditingSet() {
     setEditingSet(null);
-    setCheckedMods([]);
   }
 
   function renderSetRow(set: LoggedSet, index: number) {
@@ -129,36 +121,6 @@ export function RunSession({
               className={styles.textarea}
             />
           </label>
-
-          {exercise.modifications.length > 0 ? (
-            <div className={styles.modifications}>
-              {exercise.modifications.map((mod) => (
-                <div key={mod.id} className={styles.modRow}>
-                  <label className={styles.modLabel}>
-                    <input
-                      type="checkbox"
-                      name="modification"
-                      value={mod.id}
-                      checked={checkedMods.includes(mod.id)}
-                      onChange={() => toggleMod(mod.id)}
-                    />
-                    {mod.name}
-                  </label>
-                  {checkedMods.includes(mod.id) ? (
-                    <input
-                      type="text"
-                      name={`modValue_${mod.id}`}
-                      placeholder="value (optional)"
-                      defaultValue={
-                        editingSet?.modifications.find((m) => m.modificationId === mod.id)?.value ?? undefined
-                      }
-                      className={styles.modValue}
-                    />
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          ) : null}
         </fieldset>
 
         {state && "error" in state ? (

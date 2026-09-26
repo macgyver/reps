@@ -30,6 +30,7 @@ export async function createExercise(
       description: optionalText(formData, "description"),
       video_url: optionalText(formData, "videoUrl"),
       muscle_groups: muscleGroups,
+      parent_exercise_id: optionalText(formData, "parentExerciseId"),
       created_by: user.id,
     })
     .select("id")
@@ -63,6 +64,7 @@ export async function updateExercise(
       description: optionalText(formData, "description"),
       video_url: optionalText(formData, "videoUrl"),
       muscle_groups: muscleGroups,
+      parent_exercise_id: optionalText(formData, "parentExerciseId"),
     })
     .eq("id", exerciseId);
 
@@ -73,40 +75,4 @@ export async function updateExercise(
   revalidatePath("/exercises");
   revalidatePath(`/exercises/${exerciseId}/edit`);
   return { saved: true };
-}
-
-export type AddModificationState = { error: string } | { added: true } | null;
-
-export async function addModification(
-  exerciseId: string,
-  _prevState: AddModificationState,
-  formData: FormData,
-): Promise<AddModificationState> {
-  let name = optionalText(formData, "name");
-  if (!name) {
-    return { error: "Modification name is required" };
-  }
-
-  let supabase = await createClient();
-  let { error } = await supabase
-    .from("exercise_modifications")
-    .insert({ exercise_id: exerciseId, name });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  revalidatePath(`/exercises/${exerciseId}/edit`);
-  return { added: true };
-}
-
-export async function deleteModification(exerciseId: string, modificationId: string) {
-  let supabase = await createClient();
-  let { error } = await supabase.from("exercise_modifications").delete().eq("id", modificationId);
-
-  if (error) {
-    redirect(`/exercises/${exerciseId}/edit?error=${encodeURIComponent(error.message)}`);
-  }
-
-  revalidatePath(`/exercises/${exerciseId}/edit`);
 }

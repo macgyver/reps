@@ -15,18 +15,6 @@ create policy "exercises_insert_own" on "exercises" as permissive for insert to 
 drop policy if exists "exercises_update_own" on "exercises";
 create policy "exercises_update_own" on "exercises" as permissive for update to "authenticated" using (created_by = auth.uid()) with check (created_by = auth.uid());
 
-drop policy if exists "exercise_modifications_select_all" on "exercise_modifications";
-create policy "exercise_modifications_select_all" on "exercise_modifications" as permissive for select to "authenticated" using (true);
-
-drop policy if exists "exercise_modifications_insert_own" on "exercise_modifications";
-create policy "exercise_modifications_insert_own" on "exercise_modifications" as permissive for insert to "authenticated" with check (exists (select 1 from exercises e where e.id = exercise_id and e.created_by = auth.uid()));
-
-drop policy if exists "exercise_modifications_update_own" on "exercise_modifications";
-create policy "exercise_modifications_update_own" on "exercise_modifications" as permissive for update to "authenticated" using (exists (select 1 from exercises e where e.id = exercise_id and e.created_by = auth.uid())) with check (exists (select 1 from exercises e where e.id = exercise_id and e.created_by = auth.uid()));
-
-drop policy if exists "exercise_modifications_delete_own" on "exercise_modifications";
-create policy "exercise_modifications_delete_own" on "exercise_modifications" as permissive for delete to "authenticated" using (exists (select 1 from exercises e where e.id = exercise_id and e.created_by = auth.uid()));
-
 drop policy if exists "sessions_all_own" on "sessions";
 create policy "sessions_all_own" on "sessions" as permissive for all to "authenticated" using (user_id = auth.uid()) with check (user_id = auth.uid());
 
@@ -46,19 +34,4 @@ create policy "sets_all_own" on "sets" as permissive for all to "authenticated"
     select 1 from session_exercises se
     join sessions s on s.id = se.session_id
     where se.id = session_exercise_id and s.user_id = auth.uid()
-  ));
-
-drop policy if exists "set_modifications_all_own" on "set_modifications";
-create policy "set_modifications_all_own" on "set_modifications" as permissive for all to "authenticated"
-  using (exists (
-    select 1 from sets st
-    join session_exercises se on se.id = st.session_exercise_id
-    join sessions s on s.id = se.session_id
-    where st.id = set_id and s.user_id = auth.uid()
-  ))
-  with check (exists (
-    select 1 from sets st
-    join session_exercises se on se.id = st.session_exercise_id
-    join sessions s on s.id = se.session_id
-    where st.id = set_id and s.user_id = auth.uid()
   ));

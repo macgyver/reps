@@ -6,7 +6,7 @@
 
 // Shared visual variants. `primary` is for the main action of a screen
 // (New session, New exercise, Save exercise); `secondary` for lower-emphasis
-// additive actions (Add modification).
+// additive actions (Add exercise).
 .primary {
   @include tap-target;
   margin-top: $space-2;
