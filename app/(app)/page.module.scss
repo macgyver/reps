@@ -20,18 +20,94 @@
   list-style: none;
 }
 
-.sessionRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: $space-3 $space-4;
+.sessionItem {
   border: 1px solid var(--border);
   border-radius: $radius;
   background: var(--surface);
 }
 
+.sessionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.sessionLink {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+  min-width: 0;
+  padding: $space-3 $space-4;
+}
+
 .status {
   font-size: $font-size-sm;
+  color: var(--muted);
+}
+
+.disclosure {
+  flex-shrink: 0;
+  padding-right: $space-2;
+}
+
+.disclosureToggle {
+  @include tap-target-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.disclosureToggle::-webkit-details-marker {
+  display: none;
+}
+
+.disclosureIcon {
+  transition: transform 0.15s ease;
+}
+
+.disclosure[open] .disclosureIcon {
+  transform: rotate(90deg);
+}
+
+// Lives outside the <details> element (so it can span the full row width
+// instead of being confined to the narrow toggle column) and is shown via
+// :has() rather than native details nesting, which also means opening it
+// never changes the row above's size.
+.details {
+  display: none;
+  padding: $space-3 $space-4;
+  border-top: 1px solid var(--border);
+  font-size: $font-size-sm;
+}
+
+.sessionItem:has(.disclosure[open]) .details {
+  display: block;
+}
+
+.detailsEmpty {
+  color: var(--muted);
+}
+
+.exerciseDetailList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  list-style: none;
+}
+
+.exerciseDetailName {
+  font-weight: 600;
+}
+
+.setDetailList {
+  margin-top: $space-1;
+  padding-left: $space-4;
   color: var(--muted);
 }
 

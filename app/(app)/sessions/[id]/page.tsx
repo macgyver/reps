@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getSessionWithSets } from "@/lib/sessions/data";
+import { getLastPerformances, getSessionWithSets } from "@/lib/sessions/data";
 import { CompletedSummary } from "./completed-summary";
 import { RunSession } from "./run-session";
 import styles from "./page.module.scss";
@@ -38,13 +38,17 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     );
   }
 
+  let currentExercise = session.exercises[currentIndex];
+  let lastPerformances = await getLastPerformances([currentExercise.exerciseId], id);
+
   return (
     <RunSession
       sessionId={id}
-      exercise={session.exercises[currentIndex]}
+      exercise={currentExercise}
       position={currentIndex + 1}
       total={session.exercises.length}
       isLastExercise={currentIndex === session.exercises.length - 1}
+      lastPerformance={lastPerformances.get(currentExercise.exerciseId) ?? null}
     />
   );
 }

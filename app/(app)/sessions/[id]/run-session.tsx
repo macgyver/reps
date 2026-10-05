@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { SubmitButton } from "@/components/submit-button";
-import type { LoggedSet, SessionExerciseWithSets } from "@/lib/sessions/data";
+import type { LastPerformance, LoggedSet, SessionExerciseWithSets } from "@/lib/sessions/data";
+import { formatSet } from "@/lib/sessions/format";
 import { completeExercise, logSet, updateSet, type LogSetState } from "../actions";
 import styles from "./run-session.module.scss";
 
@@ -13,12 +14,14 @@ export function RunSession({
   position,
   total,
   isLastExercise,
+  lastPerformance,
 }: {
   sessionId: string;
   exercise: SessionExerciseWithSets;
   position: number;
   total: number;
   isLastExercise: boolean;
+  lastPerformance: LastPerformance | null;
 }) {
   let [formKey, setFormKey] = useState(0);
   let [editingSet, setEditingSet] = useState<LoggedSet | null>(null);
@@ -49,11 +52,7 @@ export function RunSession({
     return (
       <li key={set.id} className={styles.previousSetRow}>
         <span className={styles.previousSetIndex}>Set {index + 1}</span>
-        <span>
-          {[set.weight != null ? `${set.weight} lb` : null, set.reps != null ? `${set.reps} reps` : null]
-            .filter(Boolean)
-            .join(" × ") || "—"}
-        </span>
+        <span>{formatSet(set.weight, set.reps)}</span>
         {set.notes ? <span className={styles.previousSetNotes}>{set.notes}</span> : null}
         <button type="button" className={styles.editSetButton} onClick={() => startEditingSet(set)}>
           Edit
@@ -79,6 +78,11 @@ export function RunSession({
         </Link>
       </div>
       <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
+      {lastPerformance ? (
+        <p className={styles.lastTime}>
+          Last time: {lastPerformance.sets.map((set) => formatSet(set.weight, set.reps)).join(", ")}
+        </p>
+      ) : null}
 
       {setsBeforeForm.length > 0 ? (
         <ul className={styles.previousSets}>

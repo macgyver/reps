@@ -16,23 +16,6 @@ export type Session = {
   exercises: SessionExercise[];
 };
 
-export type SessionSummary = {
-  id: string;
-  createdAt: string;
-  completedAt: string | null;
-};
-
-export async function getSessionsForUser(): Promise<SessionSummary[]> {
-  let supabase = await createClient();
-  let { data, error } = await supabase
-    .from("sessions")
-    .select("id, createdAt:created_at, completedAt:completed_at")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return data ?? [];
-}
-
 export type LoggedSet = {
   id: string;
   performedAt: string | null;
@@ -40,6 +23,7 @@ export type LoggedSet = {
   reps: number | null;
   notes: string | null;
 };
+
 
 export type SessionExerciseWithSets = SessionExercise & {
   sets: LoggedSet[];
@@ -117,25 +101,28 @@ const SESSION_WITH_SETS_SELECT = `
   )
 `;
 
-export async function getSessionWithSets(id: string): Promise<SessionWithSets | null> {
-  let supabase = await createClient();
-  let { data, error } = await supabase
-    .from("sessions")
-    .select(SESSION_WITH_SETS_SELECT)
-    .eq("id", id)
-    .order("position", { referencedTable: "session_exercises" })
-    .order("performed_at", { referencedTable: "session_exercises.sets" })
-    .maybeSingle();
+type SessionWithSetsRow = {
+  id: string;
+  userId: string;
+  createdAt: string;
+  completedAt: string | null;
+  exercises: {
+    id: string;
+    position: number;
+    completedAt: string | null;
+    exerciseId: string;
+    exercise: unknown;
+    sets: LoggedSet[];
+  }[];
+};
 
-  if (error) throw error;
-  if (!data) return null;
-
+function mapSessionWithSets(row: SessionWithSetsRow): SessionWithSets {
   return {
-    id: data.id,
-    userId: data.userId,
-    createdAt: data.createdAt,
-    completedAt: data.completedAt,
-    exercises: data.exercises.map((exercise) => {
+    id: row.id,
+    userId: row.userId,
+    createdAt: row.createdAt,
+    completedAt: row.completedAt,
+    exercises: row.exercises.map((exercise) => {
       let ex = exercise.exercise as unknown as { name: string };
       return {
         id: exercise.id,
@@ -147,4 +134,69 @@ export async function getSessionWithSets(id: string): Promise<SessionWithSets | 
       };
     }),
   };
+}
+
+export async function getSessionWithSets(id: string): Promise<SessionWithSets | null> {
+  let supabase = await createClient();
+  let { data, error } = await supabase
+    .from("sessions")
+    .select(SESSION_WITH_SETS_SELECT)
+    .eq("id", id)
+    .order("position", { referencedTable: "session_exercises" })
+    .order("performed_at", { referencedTable: "session_exercises.sets" })
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? mapSessionWithSets(data as unknown as SessionWithSetsRow) : null;
+}
+
+export async function getSessionsWithSetsForUser(): Promise<SessionWithSets[]> {
+  let supabase = await createClient();
+  let { data, error } = await supabase
+    .from("sessions")
+    .select(SESSION_WITH_SETS_SELECT)
+    .order("created_at", { ascending: false })
+    .order("position", { referencedTable: "session_exercises" })
+    .order("performed_at", { referencedTable: "session_exercises.sets" });
+
+  if (error) throw error;
+  return ((data ?? []) as unknown as SessionWithSetsRow[]).map(mapSessionWithSets);
+}
+
+export type LastPerformance = {
+  performedAt: string;
+  sets: { weight: number | null; reps: number | null }[];
+};
+
+// For each exercise id, the sets logged the last time it showed up in a
+// *different* session — so "last time you did this" has something to
+// compare against while designing or running the current one.
+export async function getLastPerformances(
+  exerciseIds: string[],
+  excludeSessionId: string,
+): Promise<Map<string, LastPerformance>> {
+  if (exerciseIds.length === 0) return new Map();
+
+  let supabase = await createClient();
+  let { data, error } = await supabase
+    .from("session_exercises")
+    .select("exerciseId:exercise_id, session:sessions(createdAt:created_at), sets(weight, reps)")
+    .in("exercise_id", exerciseIds)
+    .neq("session_id", excludeSessionId);
+
+  if (error) throw error;
+
+  let latestByExercise = new Map<string, LastPerformance>();
+  for (let row of data ?? []) {
+    if (row.sets.length === 0) continue;
+    let session = row.session as unknown as { createdAt: string } | null;
+    if (!session) continue;
+
+    let current = latestByExercise.get(row.exerciseId);
+    if (!current || session.createdAt > current.performedAt) {
+      latestByExercise.set(row.exerciseId, { performedAt: session.createdAt, sets: row.sets });
+    }
+  }
+
+  return latestByExercise;
 }

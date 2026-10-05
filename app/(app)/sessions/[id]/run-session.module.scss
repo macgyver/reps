@@ -35,7 +35,13 @@
 
 .exerciseName {
   font-size: $font-size-2xl;
+  margin-bottom: $space-1;
+}
+
+.lastTime {
   margin-bottom: $space-4;
+  color: var(--muted);
+  font-size: $font-size-sm;
 }
 
 .previousSets {

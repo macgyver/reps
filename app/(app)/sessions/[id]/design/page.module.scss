@@ -27,10 +27,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: $space-3;
   padding: $space-2 $space-3;
   border: 1px solid var(--border);
   border-radius: $radius;
   background: var(--surface);
+}
+
+.lastTime {
+  margin-top: $space-1;
+  color: var(--muted);
+  font-size: $font-size-sm;
 }
 
 .removeButton {

@@ -1,4 +1,5 @@
 import type { SessionWithSets } from "@/lib/sessions/data";
+import { formatSet } from "@/lib/sessions/format";
 import styles from "./completed-summary.module.scss";
 
 export function CompletedSummary({ session }: { session: SessionWithSets }) {
@@ -18,12 +19,7 @@ export function CompletedSummary({ session }: { session: SessionWithSets }) {
                 {exercise.sets.map((set, setIndex) => (
                   <li key={set.id} className={styles.set}>
                     <span className={styles.setIndex}>#{setIndex + 1}</span>
-                    <span>
-                      {set.weight != null ? `${set.weight} lb` : null}
-                      {set.weight != null && set.reps != null ? " × " : null}
-                      {set.reps != null ? `${set.reps} reps` : null}
-                      {set.weight == null && set.reps == null ? "—" : null}
-                    </span>
+                    <span>{formatSet(set.weight, set.reps)}</span>
                     {set.notes ? <span className={styles.notes}>{set.notes}</span> : null}
                   </li>
                 ))}
