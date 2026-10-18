@@ -2,7 +2,7 @@ import Link from "next/link";
 import buttonStyles from "@/components/submit-button.module.scss";
 import { SubmitButton } from "@/components/submit-button";
 import { getSessionsWithSetsForUser, type SessionWithSets } from "@/lib/sessions/data";
-import { formatSet } from "@/lib/sessions/format";
+import { formatSessionDate, formatSet } from "@/lib/sessions/format";
 import { createSession } from "./sessions/actions";
 import styles from "./page.module.scss";
 
@@ -34,7 +34,7 @@ export default async function Home() {
                 className={styles.sessionLink}
                 title={summarize(session)}
               >
-                <span>{new Date(session.createdAt).toLocaleString()}</span>
+                <span>{formatSessionDate(session.createdAt)}</span>
                 <span className={styles.status}>
                   {session.completedAt ? "Completed" : "In progress"}
                 </span>

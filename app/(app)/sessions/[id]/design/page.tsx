@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getExercises } from "@/lib/exercises/data";
 import { getLastPerformances, getSession } from "@/lib/sessions/data";
 import { formatSet } from "@/lib/sessions/format";
-import { addExerciseToSession, removeSessionExercise } from "../../actions";
+import { addExerciseToSession, createExerciseAndAddToSession, removeSessionExercise } from "../../actions";
 import { ExercisePicker } from "./exercise-picker";
 import styles from "./page.module.scss";
 
@@ -72,7 +72,11 @@ export default async function DesignSessionPage({
         ) : null}
       </ul>
 
-      <ExercisePicker exercises={exercises} addAction={addExerciseToSession.bind(null, id)} />
+      <ExercisePicker
+        exercises={exercises}
+        addAction={addExerciseToSession.bind(null, id)}
+        createAndAddAction={createExerciseAndAddToSession.bind(null, id)}
+      />
 
       {canStart ? (
         <Link href={`/sessions/${id}`} className={styles.startButton}>

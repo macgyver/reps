@@ -24,6 +24,23 @@ export async function createSession() {
   redirect(`/sessions/${data.id}/design`);
 }
 
+async function appendExerciseToSession(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  sessionId: string,
+  exerciseId: string,
+) {
+  let { count } = await supabase
+    .from("session_exercises")
+    .select("id", { count: "exact", head: true })
+    .eq("session_id", sessionId);
+
+  return supabase.from("session_exercises").insert({
+    session_id: sessionId,
+    exercise_id: exerciseId,
+    position: count ?? 0,
+  });
+}
+
 export async function addExerciseToSession(sessionId: string, formData: FormData) {
   let exerciseId = formData.get("exerciseId");
   if (typeof exerciseId !== "string" || !exerciseId) {
@@ -31,22 +48,52 @@ export async function addExerciseToSession(sessionId: string, formData: FormData
   }
 
   let supabase = await createClient();
-  let { count } = await supabase
-    .from("session_exercises")
-    .select("id", { count: "exact", head: true })
-    .eq("session_id", sessionId);
-
-  let { error } = await supabase.from("session_exercises").insert({
-    session_id: sessionId,
-    exercise_id: exerciseId,
-    position: count ?? 0,
-  });
+  let { error } = await appendExerciseToSession(supabase, sessionId, exerciseId);
 
   if (error) {
     redirect(`/sessions/${sessionId}/design?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath(`/sessions/${sessionId}/design`);
+}
+
+export type CreateExerciseState = { created: true } | null;
+
+export async function createExerciseAndAddToSession(
+  sessionId: string,
+  _prevState: CreateExerciseState,
+  formData: FormData,
+): Promise<CreateExerciseState> {
+  let name = optionalText(formData, "name");
+  if (!name) {
+    redirect(`/sessions/${sessionId}/design?error=Enter a name`);
+  }
+
+  let user = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  let supabase = await createClient();
+  let { data: exercise, error: exerciseError } = await supabase
+    .from("exercises")
+    .insert({ name, created_by: user.id })
+    .select("id")
+    .single();
+
+  if (exerciseError || !exercise) {
+    redirect(
+      `/sessions/${sessionId}/design?error=${encodeURIComponent(exerciseError?.message ?? "Could not create exercise")}`,
+    );
+  }
+
+  let { error } = await appendExerciseToSession(supabase, sessionId, exercise.id);
+
+  if (error) {
+    redirect(`/sessions/${sessionId}/design?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/exercises");
+  revalidatePath(`/sessions/${sessionId}/design`);
+  return { created: true };
 }
 
 export async function removeSessionExercise(sessionId: string, sessionExerciseId: string) {
