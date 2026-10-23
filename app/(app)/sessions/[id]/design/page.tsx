@@ -48,7 +48,7 @@ export default async function DesignSessionPage({
           let lastPerformance = lastPerformances.get(exercise.exerciseId);
           return (
             <li key={exercise.id} className={styles.exerciseRow}>
-              <div>
+              <div className={styles.exerciseInfo}>
                 <span>{exercise.exerciseName}</span>
                 {lastPerformance ? (
                   <p className={styles.lastTime}>
@@ -56,10 +56,11 @@ export default async function DesignSessionPage({
                   </p>
                 ) : null}
               </div>
-              <form action={removeSessionExercise.bind(null, id, exercise.id)}>
+              <form className={styles.removeForm} action={removeSessionExercise.bind(null, id, exercise.id)}>
                 <SubmitButton
                   className={styles.removeButton}
-                  gerund={`Removing ${exercise.exerciseName}`}
+                  aria-label={`Remove ${exercise.exerciseName}`}
+                  gerund="Removing"
                 >
                   Remove
                 </SubmitButton>

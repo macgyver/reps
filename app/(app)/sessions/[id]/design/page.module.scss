@@ -34,10 +34,19 @@
   background: var(--surface);
 }
 
+.exerciseInfo {
+  flex: 1;
+  min-width: 0;
+}
+
 .lastTime {
   margin-top: $space-1;
   color: var(--muted);
   font-size: $font-size-sm;
+}
+
+.removeForm {
+  flex-shrink: 0;
 }
 
 .removeButton {
