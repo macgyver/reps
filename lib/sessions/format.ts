@@ -16,3 +16,12 @@ export function formatSessionDate(isoDate: string): string {
     minute: "2-digit",
   });
 }
+
+// Full month name, day only — e.g. "July 10" — for the small date label
+// while running a session.
+export function formatDateLabel(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+  });
+}

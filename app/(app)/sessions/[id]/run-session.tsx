@@ -6,10 +6,12 @@ import { SubmitButton } from "@/components/submit-button";
 import type { LastPerformance, LoggedSet, SessionExerciseWithSets } from "@/lib/sessions/data";
 import { formatSet } from "@/lib/sessions/format";
 import { completeExercise, logSet, updateSet, type LogSetState } from "../actions";
+import { SessionDateEditor } from "./session-date-editor";
 import styles from "./run-session.module.scss";
 
 export function RunSession({
   sessionId,
+  createdAt,
   exercise,
   position,
   total,
@@ -17,6 +19,7 @@ export function RunSession({
   lastPerformance,
 }: {
   sessionId: string;
+  createdAt: string;
   exercise: SessionExerciseWithSets;
   position: number;
   total: number;
@@ -70,9 +73,12 @@ export function RunSession({
   return (
     <div className={styles.container}>
       <div className={styles.topRow}>
-        <p className={styles.positionLabel}>
-          Exercise {position} of {total}
-        </p>
+        <div className={styles.topRowLeft}>
+          <SessionDateEditor sessionId={sessionId} createdAt={createdAt} />
+          <p className={styles.positionLabel}>
+            Exercise {position} of {total}
+          </p>
+        </div>
         <Link href={`/sessions/${sessionId}/design`} className={styles.editLink}>
           Edit session
         </Link>
@@ -81,6 +87,11 @@ export function RunSession({
       {lastPerformance ? (
         <p className={styles.lastTime}>
           Last time: {lastPerformance.sets.map((set) => formatSet(set.weight, set.reps)).join(", ")}
+        </p>
+      ) : null}
+      {exercise.sets.length > 0 ? (
+        <p className={styles.lastTime}>
+          This session: {exercise.sets.map((set) => formatSet(set.weight, set.reps)).join(", ")}
         </p>
       ) : null}
 

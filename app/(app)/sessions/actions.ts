@@ -167,6 +167,35 @@ export async function updateSet(
   return { success: true };
 }
 
+export type UpdateSessionDateState = { error: string } | { success: true } | null;
+
+export async function updateSessionDate(
+  sessionId: string,
+  _prevState: UpdateSessionDateState,
+  formData: FormData,
+): Promise<UpdateSessionDateState> {
+  // The client sends an already-converted ISO string (see
+  // session-date-editor.tsx) rather than the raw <input type="datetime-local">
+  // value, since that value has no time zone and would be parsed in the
+  // server's zone instead of the person's.
+  let createdAt = formData.get("createdAt");
+  if (typeof createdAt !== "string" || Number.isNaN(Date.parse(createdAt))) {
+    return { error: "Pick a date and time" };
+  }
+
+  let supabase = await createClient();
+  let { error } = await supabase.from("sessions").update({ created_at: createdAt }).eq("id", sessionId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/sessions/${sessionId}`);
+  revalidatePath(`/sessions/${sessionId}/design`);
+  revalidatePath("/");
+  return { success: true };
+}
+
 export async function completeExercise(sessionId: string, sessionExerciseId: string) {
   let supabase = await createClient();
   let now = new Date().toISOString();

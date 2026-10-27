@@ -17,6 +17,14 @@
   gap: $space-3;
 }
 
+.topRowLeft {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: $space-2;
+  min-width: 0;
+}
+
 .positionLabel {
   color: var(--muted);
   font-size: $font-size-sm;

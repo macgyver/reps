@@ -1,0 +1,60 @@
+@use "../../../../styles/variables" as *;
+
+.dateButton {
+  @include tap-target-sm;
+  padding: 0 $space-2;
+  margin: 0 (-$space-2);
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: $font-size-sm;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.dateForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $space-2;
+}
+
+.dateInput {
+  @include tap-target-sm;
+  padding: 0 $space-2;
+  font-size: $font-size-sm;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.dateSaveButton {
+  @include tap-target-sm;
+  padding: 0 $space-3;
+  border: none;
+  border-radius: $radius;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dateCancelButton {
+  @include tap-target-sm;
+  padding: 0 $space-2;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: $font-size-sm;
+  cursor: pointer;
+}
+
+.dateError {
+  flex-basis: 100%;
+  color: var(--danger);
+  font-size: $font-size-sm;
+}

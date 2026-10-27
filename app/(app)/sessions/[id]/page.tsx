@@ -44,6 +44,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
   return (
     <RunSession
       sessionId={id}
+      createdAt={session.createdAt}
       exercise={currentExercise}
       position={currentIndex + 1}
       total={session.exercises.length}
