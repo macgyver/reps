@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { SubmitButton } from "@/components/submit-button";
+import { useState } from "react";
+import { ChangeStatusMarker } from "@/components/change-status";
+import { enqueue } from "@/lib/changes/store";
+import { optionalText, parseNumber } from "@/lib/form";
 import type { LastPerformance, LoggedSet, SessionExerciseWithSets } from "@/lib/sessions/data";
 import { formatSet } from "@/lib/sessions/format";
-import { completeExercise, logSet, updateSet, type LogSetState } from "../actions";
 import { SessionDateEditor } from "./session-date-editor";
 import styles from "./run-session.module.scss";
 
@@ -29,18 +30,29 @@ export function RunSession({
   let [formKey, setFormKey] = useState(0);
   let [editingSet, setEditingSet] = useState<LoggedSet | null>(null);
 
-  let action = editingSet
-    ? updateSet.bind(null, sessionId, editingSet.id)
-    : logSet.bind(null, sessionId, exercise.id);
-  let [state, formAction] = useActionState<LogSetState, FormData>(action, null);
-
-  let [handledState, setHandledState] = useState(state);
-  if (state !== handledState) {
-    setHandledState(state);
-    if (state && "success" in state) {
-      setEditingSet(null);
-      setFormKey((k) => k + 1);
+  function saveSet(formData: FormData) {
+    let fields = {
+      sessionId,
+      sessionExerciseId: exercise.id,
+      weight: parseNumber(formData, "weight"),
+      reps: parseNumber(formData, "reps"),
+      notes: optionalText(formData, "notes"),
+    };
+    let summary = `${formatSet(fields.weight, fields.reps)} · ${exercise.exerciseName}`;
+    if (editingSet) {
+      enqueue({ kind: "updateSet", setId: editingSet.id, ...fields }, `Updated set to ${summary}`);
+    } else {
+      let performedAt = new Date().toISOString();
+      enqueue({ kind: "logSet", setId: crypto.randomUUID(), performedAt, ...fields }, `Logged ${summary}`);
     }
+    setEditingSet(null);
+    setFormKey((k) => k + 1);
+  }
+
+  function completeExercise() {
+    let completedAt = new Date().toISOString();
+    let label = isLastExercise ? "Finished session" : `Completed ${exercise.exerciseName}`;
+    enqueue({ kind: "completeExercise", sessionId, sessionExerciseId: exercise.id, completedAt }, label);
   }
 
   function startEditingSet(set: LoggedSet) {
@@ -57,6 +69,7 @@ export function RunSession({
         <span className={styles.previousSetIndex}>Set {index + 1}</span>
         <span>{formatSet(set.weight, set.reps)}</span>
         {set.notes ? <span className={styles.previousSetNotes}>{set.notes}</span> : null}
+        <ChangeStatusMarker entityId={set.id} />
         <button type="button" className={styles.editSetButton} onClick={() => startEditingSet(set)}>
           Edit
         </button>
@@ -101,7 +114,7 @@ export function RunSession({
         </ul>
       ) : null}
 
-      <form key={editingSet ? `edit-${editingSet.id}` : `new-${formKey}`} action={formAction} className={styles.form}>
+      <form key={editingSet ? `edit-${editingSet.id}` : `new-${formKey}`} action={saveSet} className={styles.form}>
         <fieldset className={styles.fieldset}>
           <legend className={styles.setLegend}>
             Set {editingSet ? editingIndex + 1 : exercise.sets.length + 1}
@@ -138,18 +151,10 @@ export function RunSession({
           </label>
         </fieldset>
 
-        {state && "error" in state ? (
-          <p role="alert" className={styles.formError}>
-            {state.error}
-          </p>
-        ) : null}
         <div className={styles.formButtons}>
-          <SubmitButton
-            className={styles.logButton}
-            gerund={editingSet ? "Updating set" : "Logging set"}
-          >
+          <button type="submit" className={styles.logButton}>
             {editingSet ? "Update set" : "Log set"}
-          </SubmitButton>
+          </button>
           {editingSet ? (
             <button type="button" className={styles.cancelEditButton} onClick={cancelEditingSet}>
               Cancel
@@ -174,14 +179,9 @@ export function RunSession({
       ) : null}
 
       <div className={styles.navRow}>
-        <form action={completeExercise.bind(null, sessionId, exercise.id)}>
-          <SubmitButton
-            className={styles.completeButton}
-            gerund={isLastExercise ? "Finishing session" : "Completing exercise"}
-          >
-            {isLastExercise ? "Finish session" : "Complete exercise"}
-          </SubmitButton>
-        </form>
+        <button type="button" className={styles.completeButton} onClick={completeExercise}>
+          {isLastExercise ? "Finish session" : "Complete exercise"}
+        </button>
       </div>
     </div>
   );

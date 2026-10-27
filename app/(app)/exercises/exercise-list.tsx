@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ChangeStatusMarker } from "@/components/change-status";
+import { applyToExercises } from "@/lib/changes/apply";
+import { useChanges } from "@/lib/changes/hooks";
 import type { Exercise } from "@/lib/exercises/data";
 import styles from "./exercise-list.module.scss";
 
@@ -15,7 +18,9 @@ function ExerciseRow({
   return (
     <>
       <div className={styles.itemHeader}>
-        <span className={styles.name}>{exercise.name}</span>
+        <span>
+          <span className={styles.name}>{exercise.name}</span> <ChangeStatusMarker entityId={exercise.id} />
+        </span>
         {exercise.createdBy === currentUserId ? (
           <Link href={`/exercises/${exercise.id}/edit`} className={styles.editLink}>
             Edit
@@ -71,12 +76,13 @@ function ExerciseNode({
 }
 
 export function ExerciseList({
-  exercises,
+  exercises: serverExercises,
   currentUserId,
 }: {
   exercises: Exercise[];
   currentUserId: string | undefined;
 }) {
+  let exercises = applyToExercises(serverExercises, useChanges());
   let [query, setQuery] = useState("");
   let searching = query.trim().length > 0;
   let filtered = exercises.filter((exercise) =>

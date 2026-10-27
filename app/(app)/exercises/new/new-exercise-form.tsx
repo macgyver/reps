@@ -1,20 +1,39 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import buttonStyles from "@/components/submit-button.module.scss";
 import { MuscleGroupPicker } from "@/components/muscle-group-picker";
 import { ParentExercisePicker } from "@/components/parent-exercise-picker";
 import { SubmitButton } from "@/components/submit-button";
+import { applyToExercises } from "@/lib/changes/apply";
+import { useChanges } from "@/lib/changes/hooks";
+import { enqueue } from "@/lib/changes/store";
 import type { Exercise } from "@/lib/exercises/data";
-import { createExercise, type ExerciseFormState } from "../actions";
+import { exerciseFields, failureMessage } from "../exercise-fields";
 import styles from "../form.module.scss";
 
-export function NewExerciseForm({ exercises }: { exercises: Exercise[] }) {
-  let [state, formAction] = useActionState<ExerciseFormState, FormData>(createExercise, null);
+export function NewExerciseForm({ exercises: serverExercises }: { exercises: Exercise[] }) {
+  let router = useRouter();
+  let exercises = applyToExercises(serverExercises, useChanges());
+  let [error, setError] = useState<string | null>(null);
   let [name, setName] = useState("");
 
+  async function create(formData: FormData) {
+    setError(null);
+    let fields = exerciseFields(formData);
+    if (!fields) return setError("Name is required");
+    let exerciseId = crypto.randomUUID();
+    let change = await enqueue(
+      { kind: "createExercise", exerciseId, ...fields },
+      `Created exercise ${fields.name}`,
+    );
+    if (change.status === "saved") router.push(`/exercises/${exerciseId}/edit`);
+    else setError(failureMessage(change));
+  }
+
   return (
-    <form action={formAction} className={styles.form}>
+    <form action={create} className={styles.form}>
       <label htmlFor="name" className={styles.label}>
         Name
       </label>
@@ -46,9 +65,9 @@ export function NewExerciseForm({ exercises }: { exercises: Exercise[] }) {
       </label>
       <input id="videoUrl" name="videoUrl" type="url" className={styles.input} />
 */}
-      {state && "error" in state ? (
+      {error ? (
         <p role="alert" className={styles.error}>
-          {state.error}
+          {error}
         </p>
       ) : null}
       <SubmitButton className={buttonStyles.primary} gerund="Creating">

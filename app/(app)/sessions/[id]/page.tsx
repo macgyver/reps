@@ -1,10 +1,7 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getLastPerformances, getSessionWithSets } from "@/lib/sessions/data";
-import { CompletedSummary } from "./completed-summary";
-import { RunSession } from "./run-session";
-import styles from "./page.module.scss";
+import { SessionView } from "./session-view";
 
 export default async function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   let { id } = await params;
@@ -15,41 +12,10 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
   if (!session) notFound();
   if (session.userId !== user.id) redirect("/");
 
-  if (session.completedAt) {
-    return <CompletedSummary session={session} />;
-  }
-
-  if (session.exercises.length === 0) {
-    // Nothing to run yet — adding an exercise is the only thing to do here,
-    // so skip straight to the design screen instead of a dead-end message.
-    redirect(`/sessions/${id}/design`);
-  }
-
-  let currentIndex = session.exercises.findIndex((exercise) => !exercise.completedAt);
-
-  if (currentIndex === -1) {
-    return (
-      <main className={styles.main}>
-        <p>All exercises are complete.</p>
-        <Link href={`/sessions/${id}/design`} className={styles.editLink}>
-          Edit session
-        </Link>
-      </main>
-    );
-  }
-
-  let currentExercise = session.exercises[currentIndex];
-  let lastPerformances = await getLastPerformances([currentExercise.exerciseId], id);
-
-  return (
-    <RunSession
-      sessionId={id}
-      createdAt={session.createdAt}
-      exercise={currentExercise}
-      position={currentIndex + 1}
-      total={session.exercises.length}
-      isLastExercise={currentIndex === session.exercises.length - 1}
-      lastPerformance={lastPerformances.get(currentExercise.exerciseId) ?? null}
-    />
+  let lastPerformances = await getLastPerformances(
+    session.exercises.map((exercise) => exercise.exerciseId),
+    id,
   );
+
+  return <SessionView session={session} lastPerformances={Object.fromEntries(lastPerformances)} />;
 }

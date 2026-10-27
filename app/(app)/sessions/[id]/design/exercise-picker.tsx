@@ -1,39 +1,57 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { SubmitButton } from "@/components/submit-button";
+import { useState } from "react";
+import { enqueue } from "@/lib/changes/store";
 import type { Exercise } from "@/lib/exercises/data";
-import type { CreateExerciseState } from "../../actions";
 import styles from "./exercise-picker.module.scss";
 
 export function ExercisePicker({
+  sessionId,
   exercises,
-  addAction,
-  createAndAddAction,
+  nextPosition,
 }: {
+  sessionId: string;
   exercises: Exercise[];
-  addAction: (formData: FormData) => void;
-  createAndAddAction: (prevState: CreateExerciseState, formData: FormData) => Promise<CreateExerciseState>;
+  nextPosition: number;
 }) {
   let [query, setQuery] = useState("");
-  let [createState, createFormAction] = useActionState<CreateExerciseState, FormData>(
-    createAndAddAction,
-    null,
-  );
-
-  // Clear the search after a new exercise is created and added, instead of
-  // leaving its name sitting in the box (now matching the exercise that's
-  // already been added).
-  let [handledCreateState, setHandledCreateState] = useState(createState);
-  if (createState !== handledCreateState) {
-    setHandledCreateState(createState);
-    if (createState?.created) setQuery("");
-  }
 
   let trimmedQuery = query.trim();
   let filtered = exercises.filter((exercise) =>
     exercise.name.toLowerCase().includes(query.toLowerCase()),
   );
+
+  function add(exerciseId: string, exerciseName: string) {
+    enqueue(
+      {
+        kind: "addSessionExercise",
+        sessionExerciseId: crypto.randomUUID(),
+        sessionId,
+        exerciseId,
+        exerciseName,
+        position: nextPosition,
+      },
+      `Added ${exerciseName} to session`,
+    );
+  }
+
+  function createAndAdd() {
+    let exerciseId = crypto.randomUUID();
+    enqueue(
+      {
+        kind: "createExercise",
+        exerciseId,
+        name: trimmedQuery,
+        description: null,
+        videoUrl: null,
+        muscleGroups: [],
+        parentExerciseId: null,
+      },
+      `Created exercise ${trimmedQuery}`,
+    );
+    add(exerciseId, trimmedQuery);
+    setQuery("");
+  }
 
   return (
     <div className={styles.picker}>
@@ -47,22 +65,20 @@ export function ExercisePicker({
       <ul className={styles.results}>
         {filtered.map((exercise) => (
           <li key={exercise.id}>
-            <form action={addAction}>
-              <input type="hidden" name="exerciseId" value={exercise.id} />
-              <SubmitButton className={styles.resultButton} gerund={`Adding ${exercise.name}`}>
-                {exercise.name}
-              </SubmitButton>
-            </form>
+            <button
+              type="button"
+              className={styles.resultButton}
+              onClick={() => add(exercise.id, exercise.name)}
+            >
+              {exercise.name}
+            </button>
           </li>
         ))}
         {filtered.length === 0 && trimmedQuery ? (
           <li>
-            <form action={createFormAction}>
-              <input type="hidden" name="name" value={trimmedQuery} />
-              <SubmitButton className={styles.resultButton} gerund={`Creating ${trimmedQuery}`}>
-                + Create &ldquo;{trimmedQuery}&rdquo;
-              </SubmitButton>
-            </form>
+            <button type="button" className={styles.resultButton} onClick={createAndAdd}>
+              + Create &ldquo;{trimmedQuery}&rdquo;
+            </button>
           </li>
         ) : null}
         {filtered.length === 0 && !trimmedQuery ? <li className={styles.empty}>No matches.</li> : null}

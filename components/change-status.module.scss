@@ -1,0 +1,12 @@
+@use "../styles/variables" as *;
+
+.saving {
+  color: var(--muted);
+  font-size: $font-size-sm;
+}
+
+.failed {
+  color: var(--danger);
+  font-size: $font-size-sm;
+  text-decoration: underline;
+}

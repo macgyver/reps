@@ -1,25 +1,20 @@
 import Link from "next/link";
-import { SubmitButton } from "@/components/submit-button";
-import { signOut } from "@/lib/auth/actions";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth/session";
+import { HeaderNav } from "./header-nav";
 import styles from "./layout.module.scss";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  let user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   return (
     <>
       <header className={styles.header}>
         <Link href="/" className={styles.brand}>
           Reps
         </Link>
-        <nav className={styles.nav}>
-          <Link href="/exercises" className={styles.navLink}>
-            Exercises
-          </Link>
-          <form action={signOut}>
-            <SubmitButton className={styles.signOut} gerund="Signing out">
-              Sign out
-            </SubmitButton>
-          </form>
-        </nav>
+        <HeaderNav userId={user.id} />
       </header>
       {children}
     </>

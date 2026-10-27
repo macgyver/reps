@@ -1,9 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { SubmitButton } from "@/components/submit-button";
-import { formatDateLabel } from "@/lib/sessions/format";
-import { updateSessionDate, type UpdateSessionDateState } from "../actions";
+import { useState } from "react";
+import { enqueue } from "@/lib/changes/store";
+import { formatDateLabel, formatSessionDate } from "@/lib/sessions/format";
 import styles from "./session-date-editor.module.scss";
 
 // <input type="datetime-local">'s value has no time zone — format/parse it
@@ -17,14 +16,6 @@ function toDatetimeLocalValue(isoDate: string): string {
 export function SessionDateEditor({ sessionId, createdAt }: { sessionId: string; createdAt: string }) {
   let [editing, setEditing] = useState(false);
   let [localValue, setLocalValue] = useState(() => toDatetimeLocalValue(createdAt));
-  let action = updateSessionDate.bind(null, sessionId);
-  let [state, formAction] = useActionState<UpdateSessionDateState, FormData>(action, null);
-
-  let [handledState, setHandledState] = useState(state);
-  if (state !== handledState) {
-    setHandledState(state);
-    if (state && "success" in state) setEditing(false);
-  }
 
   if (!editing) {
     let label = formatDateLabel(createdAt);
@@ -40,13 +31,20 @@ export function SessionDateEditor({ sessionId, createdAt }: { sessionId: string;
     );
   }
 
-  // Convert in the browser, where "local" correctly means the person's own
-  // time zone, before handing it to the server action as a plain ISO string.
   let parsed = new Date(localValue);
-  let isoValue = Number.isNaN(parsed.getTime()) ? createdAt : parsed.toISOString();
+
+  function save() {
+    if (Number.isNaN(parsed.getTime())) return;
+    let isoValue = parsed.toISOString();
+    enqueue(
+      { kind: "updateSessionDate", sessionId, createdAt: isoValue },
+      `Changed session date to ${formatSessionDate(isoValue)}`,
+    );
+    setEditing(false);
+  }
 
   return (
-    <form action={formAction} className={styles.dateForm}>
+    <form action={save} className={styles.dateForm}>
       <input
         type="datetime-local"
         value={localValue}
@@ -55,18 +53,12 @@ export function SessionDateEditor({ sessionId, createdAt }: { sessionId: string;
         aria-label="Workout date and time"
         autoFocus
       />
-      <input type="hidden" name="createdAt" value={isoValue} />
-      <SubmitButton className={styles.dateSaveButton} gerund="Saving">
+      <button type="submit" className={styles.dateSaveButton}>
         Save
-      </SubmitButton>
+      </button>
       <button type="button" className={styles.dateCancelButton} onClick={() => setEditing(false)}>
         Cancel
       </button>
-      {state && "error" in state ? (
-        <p role="alert" className={styles.dateError}>
-          {state.error}
-        </p>
-      ) : null}
     </form>
   );
 }

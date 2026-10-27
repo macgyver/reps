@@ -1,12 +1,16 @@
+"use client";
+
+import { useIsClient } from "@/lib/use-is-client";
 import type { SessionWithSets } from "@/lib/sessions/data";
 import { formatSet } from "@/lib/sessions/format";
 import styles from "./completed-summary.module.scss";
 
 export function CompletedSummary({ session }: { session: SessionWithSets }) {
+  let isClient = useIsClient();
   return (
     <main className={styles.main}>
       <h1>Session summary</h1>
-      <p className={styles.date}>{new Date(session.createdAt).toLocaleString()}</p>
+      <p className={styles.date}>{isClient ? new Date(session.createdAt).toLocaleString() : null}</p>
 
       <ol className={styles.exerciseList}>
         {session.exercises.map((exercise) => (

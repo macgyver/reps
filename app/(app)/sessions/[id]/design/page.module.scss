@@ -9,12 +9,6 @@
   padding-bottom: 6rem;
 }
 
-.error {
-  color: var(--danger);
-  font-size: $font-size-sm;
-  margin-top: $space-2;
-}
-
 .exerciseList {
   display: flex;
   flex-direction: column;
@@ -45,12 +39,9 @@
   font-size: $font-size-sm;
 }
 
-.removeForm {
-  flex-shrink: 0;
-}
-
 .removeButton {
   @include tap-target-sm;
+  flex-shrink: 0;
   padding: 0 $space-2;
   background: none;
   border: none;

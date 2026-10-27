@@ -43,3 +43,29 @@
 .signOut:hover {
   color: var(--foreground);
 }
+
+.badge {
+  min-width: 1.6rem;
+  margin-left: $space-1;
+  padding: 0 $space-1;
+  border-radius: 0.8rem;
+  background: var(--muted);
+  color: var(--background);
+  font-size: $font-size-xs;
+  font-weight: 700;
+  text-align: center;
+}
+
+.badgeDanger {
+  background: var(--danger);
+  color: var(--accent-foreground);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

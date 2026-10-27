@@ -1,0 +1,100 @@
+@use "../../../styles/variables" as *;
+
+.main {
+  flex: 1;
+  padding: $space-4;
+  max-width: 40rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.heading {
+  margin-top: $space-4;
+  font-size: $font-size-lg;
+}
+
+.actions {
+  display: flex;
+  gap: $space-3;
+  margin-top: $space-3;
+}
+
+.retryButton,
+.secondaryButton {
+  @include tap-target;
+  flex: 1;
+  padding: 0 $space-3;
+  border-radius: $radius;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retryButton {
+  border: none;
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.secondaryButton {
+  border: 2px solid var(--border);
+  background: var(--surface);
+}
+
+.retryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-4;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-2 $space-3;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: $font-size-sm;
+}
+
+.problem {
+  color: var(--danger);
+  font-size: $font-size-sm;
+}
+
+.discardButton {
+  @include tap-target-sm;
+  flex-shrink: 0;
+  padding: 0 $space-2;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: $font-size-sm;
+  cursor: pointer;
+}
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+}

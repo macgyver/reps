@@ -25,3 +25,12 @@ export function formatDateLabel(isoDate: string): string {
     day: "numeric",
   });
 }
+
+export function formatTimeAgo(isoDate: string): string {
+  let seconds = Math.round((Date.now() - new Date(isoDate).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  let formatter = new Intl.RelativeTimeFormat(undefined, { numeric: "always", style: "short" });
+  if (seconds < 3600) return formatter.format(-Math.floor(seconds / 60), "minute");
+  if (seconds < 86400) return formatter.format(-Math.floor(seconds / 3600), "hour");
+  return formatter.format(-Math.floor(seconds / 86400), "day");
+}
