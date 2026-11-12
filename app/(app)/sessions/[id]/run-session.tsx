@@ -6,7 +6,8 @@ import { ChangeStatusMarker } from "@/components/change-status";
 import { enqueue } from "@/lib/changes/store";
 import { optionalText, parseNumber } from "@/lib/form";
 import type { LastPerformance, LoggedSet, SessionExerciseWithSets } from "@/lib/sessions/data";
-import { formatSet } from "@/lib/sessions/format";
+import { formatMonthDay, formatSet } from "@/lib/sessions/format";
+import { useIsClient } from "@/lib/use-is-client";
 import { SessionDateEditor } from "./session-date-editor";
 import styles from "./run-session.module.scss";
 
@@ -28,6 +29,7 @@ export function RunSession({
   lastPerformance: LastPerformance | null;
 }) {
   let [formKey, setFormKey] = useState(0);
+  let isClient = useIsClient();
   let [editingSet, setEditingSet] = useState<LoggedSet | null>(null);
 
   function saveSet(formData: FormData) {
@@ -99,7 +101,7 @@ export function RunSession({
       <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
       {lastPerformance ? (
         <p className={styles.lastTime}>
-          Last time: {lastPerformance.sets.map((set) => formatSet(set.weight, set.reps)).join(", ")}
+          Last time{isClient ? ` (${formatMonthDay(lastPerformance.performedAt)})` : null}: {lastPerformance.sets.map((set) => formatSet(set.weight, set.reps)).join(", ")}
         </p>
       ) : null}
       {exercise.sets.length > 0 ? (

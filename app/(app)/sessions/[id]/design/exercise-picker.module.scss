@@ -24,7 +24,7 @@
   list-style: none;
 }
 
-.resultButton {
+.option {
   @include tap-target;
   width: 100%;
   padding: 0 $space-3;
@@ -32,11 +32,27 @@
   border: 1px solid var(--border);
   border-radius: $radius;
   background: var(--background);
+  display: flex;
+  align-items: center;
   cursor: pointer;
+}
+
+.optionActive {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .empty {
   padding: $space-2 0;
   color: var(--muted);
   font-size: $font-size-sm;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

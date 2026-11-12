@@ -26,6 +26,11 @@ export function formatDateLabel(isoDate: string): string {
   });
 }
 
+export function formatMonthDay(isoDate: string): string {
+  let date = new Date(isoDate);
+  return `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
+}
+
 export function formatTimeAgo(isoDate: string): string {
   let seconds = Math.round((Date.now() - new Date(isoDate).getTime()) / 1000);
   if (seconds < 60) return "just now";
