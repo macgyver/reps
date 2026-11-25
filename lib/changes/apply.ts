@@ -61,6 +61,9 @@ export function applyToSession<T extends Session | SessionWithSets>(session: T, 
         e.id === p.sessionExerciseId && !e.completedAt ? { ...e, completedAt: p.completedAt } : e,
       );
       if (exercises.every((e) => e.completedAt)) result.completedAt ??= p.completedAt;
+    } else if (p.kind === "reopenSession") {
+      result.completedAt = null;
+      exercises = exercises.map((e) => ({ ...e, completedAt: null }));
     }
   }
 

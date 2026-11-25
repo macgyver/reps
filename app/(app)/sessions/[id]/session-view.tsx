@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useChanges } from "@/lib/changes/hooks";
 import { applyToSession } from "@/lib/changes/apply";
 import type { LastPerformance, SessionWithSets } from "@/lib/sessions/data";
@@ -16,6 +17,7 @@ export function SessionView({
   lastPerformances: Record<string, LastPerformance>;
 }) {
   let session = applyToSession(serverSession, useChanges());
+  let [viewedId, setViewedId] = useState<string | null>(null);
   let designHref = `/sessions/${session.id}/design`;
 
   if (session.completedAt) return <CompletedSummary session={session} />;
@@ -31,7 +33,9 @@ export function SessionView({
     );
   }
 
-  let currentIndex = session.exercises.findIndex((exercise) => !exercise.completedAt);
+  let viewedIndex = session.exercises.findIndex((exercise) => exercise.id === viewedId);
+  let currentIndex =
+    viewedIndex !== -1 ? viewedIndex : session.exercises.findIndex((exercise) => !exercise.completedAt);
   if (currentIndex === -1) {
     return (
       <main className={styles.main}>
@@ -52,8 +56,11 @@ export function SessionView({
       exercise={exercise}
       position={currentIndex + 1}
       total={session.exercises.length}
-      isLastExercise={currentIndex === session.exercises.length - 1}
+      isLastExercise={session.exercises.every((e) => e.id === exercise.id || e.completedAt)}
       lastPerformance={lastPerformances[exercise.exerciseId] ?? null}
+      prevId={session.exercises[currentIndex - 1]?.id ?? null}
+      nextId={session.exercises[currentIndex + 1]?.id ?? null}
+      onNavigate={setViewedId}
     />
   );
 }

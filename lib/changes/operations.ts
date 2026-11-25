@@ -120,5 +120,20 @@ export async function runChange(
         );
       }
     }
+    case "reopenSession":
+      check(
+        await supabase
+          .from("session_exercises")
+          .update({ completed_at: null })
+          .eq("session_id", payload.sessionId)
+          .abortSignal(signal),
+      );
+      return check(
+        await supabase
+          .from("sessions")
+          .update({ completed_at: null })
+          .eq("id", payload.sessionId)
+          .abortSignal(signal),
+      );
   }
 }

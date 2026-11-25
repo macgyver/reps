@@ -42,6 +42,8 @@ export function getRefs(payload: ChangePayload): Refs {
         requires: [payload.sessionExerciseId],
         writes: [payload.sessionExerciseId, payload.sessionId],
       };
+    case "reopenSession":
+      return { creates: [], requires: [payload.sessionId], writes: [payload.sessionId] };
   }
 }
 

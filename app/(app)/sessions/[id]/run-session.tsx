@@ -19,6 +19,9 @@ export function RunSession({
   total,
   isLastExercise,
   lastPerformance,
+  prevId,
+  nextId,
+  onNavigate,
 }: {
   sessionId: string;
   createdAt: string;
@@ -27,6 +30,9 @@ export function RunSession({
   total: number;
   isLastExercise: boolean;
   lastPerformance: LastPerformance | null;
+  prevId: string | null;
+  nextId: string | null;
+  onNavigate: (sessionExerciseId: string | null) => void;
 }) {
   let [formKey, setFormKey] = useState(0);
   let isClient = useIsClient();
@@ -55,6 +61,12 @@ export function RunSession({
     let completedAt = new Date().toISOString();
     let label = isLastExercise ? "Finished session" : `Completed ${exercise.exerciseName}`;
     enqueue({ kind: "completeExercise", sessionId, sessionExerciseId: exercise.id, completedAt }, label);
+    onNavigate(null);
+  }
+
+  function saveSetAndComplete(formData: FormData) {
+    saveSet(formData);
+    completeExercise();
   }
 
   function startEditingSet(set: LoggedSet) {
@@ -88,16 +100,40 @@ export function RunSession({
   return (
     <div className={styles.container}>
       <div className={styles.topRow}>
-        <div className={styles.topRowLeft}>
-          <SessionDateEditor sessionId={sessionId} createdAt={createdAt} />
-          <p className={styles.positionLabel}>
-            Exercise {position} of {total}
-          </p>
-        </div>
+        <SessionDateEditor sessionId={sessionId} createdAt={createdAt} />
         <Link href={`/sessions/${sessionId}/design`} className={styles.editLink}>
           Edit session
         </Link>
       </div>
+      <nav className={styles.stepNav} aria-label="Exercises">
+        <button
+          type="button"
+          className={styles.stepButton}
+          aria-label="Previous exercise"
+          disabled={!prevId}
+          onClick={() => onNavigate(prevId)}
+        >
+          <svg className={styles.chevron} viewBox="0 0 10 16" aria-hidden="true">
+            <path d="M7.5 2.5 2.5 8l5 5.5" />
+          </svg>
+          Previous
+        </button>
+        <p className={styles.positionLabel}>
+          Exercise {position} of {total}
+        </p>
+        <button
+          type="button"
+          className={`${styles.stepButton} ${styles.stepNext}`}
+          aria-label="Next exercise"
+          disabled={!nextId}
+          onClick={() => onNavigate(nextId)}
+        >
+          Next
+          <svg className={styles.chevron} viewBox="0 0 10 16" aria-hidden="true">
+            <path d="m2.5 2.5 5 5.5-5 5.5" />
+          </svg>
+        </button>
+      </nav>
       <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
       {lastPerformance ? (
         <p className={styles.lastTime}>
@@ -163,6 +199,11 @@ export function RunSession({
             </button>
           ) : null}
         </div>
+        {editingSet || exercise.completedAt ? null : (
+          <button type="submit" formAction={saveSetAndComplete} className={styles.logAndCompleteButton}>
+            {isLastExercise ? "Log set and finish session" : "Log set and complete exercise"}
+          </button>
+        )}
       </form>
 
       {setsAfterForm.length > 0 || editingSet ? (
@@ -180,11 +221,14 @@ export function RunSession({
         </ul>
       ) : null}
 
-      <div className={styles.navRow}>
-        <button type="button" className={styles.completeButton} onClick={completeExercise}>
-          {isLastExercise ? "Finish session" : "Complete exercise"}
-        </button>
-      </div>
+      {exercise.completedAt ? null : (
+        <div className={styles.navRow}>
+          <button type="button" className={styles.completeButton} onClick={completeExercise}>
+            {isLastExercise ? "Finish session" : "Complete exercise"}
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }

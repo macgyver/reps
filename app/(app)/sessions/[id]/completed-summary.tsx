@@ -1,6 +1,7 @@
 "use client";
 
 import { PopoverButton } from "@/components/popover-button";
+import { enqueue } from "@/lib/changes/store";
 import { useIsClient } from "@/lib/use-is-client";
 import type { SessionWithSets } from "@/lib/sessions/data";
 import { formatSet } from "@/lib/sessions/format";
@@ -52,6 +53,16 @@ export function CompletedSummary({ session }: { session: SessionWithSets }) {
       <div className={styles.titleRow}>
         <h1>Session summary</h1>
         <div className={styles.shareButtons}>
+          <button
+            type="button"
+            className={styles.copyButton}
+            onClick={() => enqueue({ kind: "reopenSession", sessionId: session.id }, "Reopened session for editing")}
+          >
+            <svg className={styles.buttonIcon} viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" />
+            </svg>
+            Edit
+          </button>
           {canShare ? (
             <PopoverButton className={styles.copyButton} action={share}>
               <svg className={styles.buttonIcon} viewBox="0 0 24 24" aria-hidden="true">
