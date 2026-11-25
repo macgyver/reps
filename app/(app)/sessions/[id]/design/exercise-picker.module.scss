@@ -34,7 +34,20 @@
   background: var(--background);
   display: flex;
   align-items: center;
+  gap: $space-2;
   cursor: pointer;
+}
+
+.enterIcon {
+  width: 1.1em;
+  height: 1.1em;
+  margin-left: auto;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .optionActive {

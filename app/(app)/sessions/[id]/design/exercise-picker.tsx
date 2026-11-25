@@ -18,6 +18,7 @@ export function ExercisePicker({
 }) {
   let [query, setQuery] = useState("");
   let [activeIndex, setActiveIndex] = useState(-1);
+  let [inputFocused, setInputFocused] = useState(false);
   let listboxId = useId();
 
   let trimmedQuery = query.trim();
@@ -67,6 +68,7 @@ export function ExercisePicker({
   ];
   let active = options[activeIndex];
   let optionId = (key: string) => `${listboxId}-${key}`;
+  let enterTarget = active ?? (inputFocused && options[0]?.key === "create" ? options[0] : null);
 
   function select(option: (typeof options)[number]) {
     if (option.exercise) add(option.exercise.id, option.exercise.name);
@@ -88,6 +90,9 @@ export function ExercisePicker({
     } else if (e.key === "Enter" && active) {
       e.preventDefault();
       select(active);
+    } else if (e.key === "Enter" && options[0]?.key === "create") {
+      e.preventDefault();
+      moveActive(0);
     } else if (e.key === "Escape") {
       e.preventDefault();
       if (active) setActiveIndex(-1);
@@ -113,6 +118,8 @@ export function ExercisePicker({
           setActiveIndex(-1);
         }}
         onKeyDown={handleKeyDown}
+        onFocus={() => setInputFocused(true)}
+        onBlur={() => setInputFocused(false)}
         className={styles.search}
       />
       <ul id={listboxId} role="listbox" aria-label="Exercises" className={styles.results}>
@@ -128,6 +135,11 @@ export function ExercisePicker({
             onMouseMove={() => index !== activeIndex && setActiveIndex(index)}
           >
             {option.label}
+            {option === enterTarget ? (
+              <svg className={styles.enterIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 5v7a3 3 0 0 1-3 3H5M9 11l-4 4 4 4" />
+              </svg>
+            ) : null}
           </li>
         ))}
       </ul>
