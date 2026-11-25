@@ -8,6 +8,49 @@
   margin: 0 auto;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.shareButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: $space-2;
+}
+
+.copyButton {
+  @include tap-target-sm;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  flex-shrink: 0;
+  min-width: 7.5rem;
+  padding: 0 $space-3;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buttonIcon {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .date {
   color: var(--muted);
   font-size: $font-size-sm;

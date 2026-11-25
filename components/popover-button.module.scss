@@ -1,0 +1,64 @@
+@use "../styles/variables" as *;
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.region {
+  position: absolute;
+  top: calc(100% + #{$space-2});
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.popover {
+  position: relative;
+  display: block;
+  padding: $space-2 $space-3;
+  border: 1px solid var(--border);
+  border-radius: $radius;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: $font-size-sm;
+  white-space: nowrap;
+  animation: popover-in 0.15s ease-out;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    border: solid transparent;
+  }
+
+  &::before {
+    right: $space-4;
+    border-width: 7px;
+    border-bottom-color: var(--border);
+  }
+
+  &::after {
+    right: calc(#{$space-4} + 1px);
+    border-width: 6px;
+    border-bottom-color: var(--surface);
+  }
+}
+
+.error {
+  color: var(--danger);
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    animation: none;
+  }
+}
