@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChangeStatusMarker } from "@/components/change-status";
 import { enqueue } from "@/lib/changes/store";
 import { optionalText, parseNumber } from "@/lib/form";
@@ -22,6 +22,7 @@ export function RunSession({
   prevId,
   nextId,
   onNavigate,
+  focusHeading,
 }: {
   sessionId: string;
   createdAt: string;
@@ -33,7 +34,13 @@ export function RunSession({
   prevId: string | null;
   nextId: string | null;
   onNavigate: (sessionExerciseId: string | null) => void;
+  focusHeading: boolean;
 }) {
+  let headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (focusHeading) headingRef.current?.focus();
+  }, [focusHeading]);
+
   let [formKey, setFormKey] = useState(0);
   let isClient = useIsClient();
   let [editingSet, setEditingSet] = useState<LoggedSet | null>(null);
@@ -134,7 +141,7 @@ export function RunSession({
           </svg>
         </button>
       </nav>
-      <h1 className={styles.exerciseName}>{exercise.exerciseName}</h1>
+      <h1 ref={headingRef} tabIndex={-1} className={styles.exerciseName}>{exercise.exerciseName}</h1>
       {lastPerformance ? (
         <p className={styles.lastTime}>
           Last time{isClient ? ` (${formatMonthDay(lastPerformance.performedAt)})` : null}: {lastPerformance.sets.map((set) => formatSet(set.weight, set.reps)).join(", ")}

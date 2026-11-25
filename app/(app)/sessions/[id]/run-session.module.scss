@@ -17,10 +17,6 @@
   gap: $space-3;
 }
 
-.stepNext {
-  justify-content: flex-end;
-}
-
 .chevron {
   width: 0.6em;
   height: 1em;
@@ -196,26 +192,46 @@
   cursor: pointer;
 }
 
+// Equal side columns keep the position label exactly centered while each
+// button stays only as wide as its content.
 .stepNav {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: $space-2;
-  margin: 0 (-$space-2);
+  min-height: $tap-target-sm;
 }
 
+// Compact box so the focus ring hugs the label; ::after keeps the full
+// tap target around it.
 .stepButton {
-  @include tap-target-sm;
-  flex: 1 1 0;
+  position: relative;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
-  padding: 0 $space-2;
+  padding: 2px $space-1;
+  margin: 0 (-$space-1);
+  border-radius: 4px;
   background: none;
   border: none;
   color: var(--accent);
   font-size: $font-size-sm;
   cursor: pointer;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -$space-2;
+    right: -$space-2;
+    height: $tap-target-sm;
+    transform: translateY(-50%);
+  }
+
+  &.stepNext {
+    justify-self: end;
+  }
 
   &:disabled {
     visibility: hidden;

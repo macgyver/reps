@@ -18,6 +18,12 @@ export function SessionView({
 }) {
   let session = applyToSession(serverSession, useChanges());
   let [viewedId, setViewedId] = useState<string | null>(null);
+  let [focusHeading, setFocusHeading] = useState(false);
+
+  function navigate(sessionExerciseId: string | null) {
+    setViewedId(sessionExerciseId);
+    setFocusHeading(true);
+  }
   let designHref = `/sessions/${session.id}/design`;
 
   if (session.completedAt) return <CompletedSummary session={session} />;
@@ -60,7 +66,8 @@ export function SessionView({
       lastPerformance={lastPerformances[exercise.exerciseId] ?? null}
       prevId={session.exercises[currentIndex - 1]?.id ?? null}
       nextId={session.exercises[currentIndex + 1]?.id ?? null}
-      onNavigate={setViewedId}
+      onNavigate={navigate}
+      focusHeading={focusHeading}
     />
   );
 }
