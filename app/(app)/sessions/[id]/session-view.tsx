@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useChanges } from "@/lib/changes/hooks";
 import { applyToSession } from "@/lib/changes/apply";
+import { enqueue } from "@/lib/changes/store";
 import type { LastPerformance, SessionWithSets } from "@/lib/sessions/data";
 import { CompletedSummary } from "./completed-summary";
 import { RunSession } from "./run-session";
@@ -17,14 +18,7 @@ export function SessionView({
   lastPerformances: Record<string, LastPerformance>;
 }) {
   let session = applyToSession(serverSession, useChanges());
-  let [viewedId, setViewedId] = useState<string | null>(null);
   let [focusHeading, setFocusHeading] = useState(false);
-
-  function navigate(sessionExerciseId: string | null) {
-    setViewedId(sessionExerciseId);
-    setFocusHeading(true);
-  }
-  let designHref = `/sessions/${session.id}/design`;
 
   if (session.completedAt) return <CompletedSummary session={session} />;
 
@@ -32,28 +26,33 @@ export function SessionView({
     return (
       <main className={styles.main}>
         <p>No exercises yet.</p>
-        <Link href={designHref} className={styles.editLink}>
+        <Link href={`/sessions/${session.id}/design`} className={styles.editLink}>
           Add exercises
         </Link>
       </main>
     );
   }
 
-  let viewedIndex = session.exercises.findIndex((exercise) => exercise.id === viewedId);
-  let currentIndex =
-    viewedIndex !== -1 ? viewedIndex : session.exercises.findIndex((exercise) => !exercise.completedAt);
-  if (currentIndex === -1) {
-    return (
-      <main className={styles.main}>
-        <p>All exercises are complete.</p>
-        <Link href={designHref} className={styles.editLink}>
-          Edit session
-        </Link>
-      </main>
+  let currentIndex = Math.max(
+    0,
+    session.exercises.findIndex((exercise) => exercise.id === session.currentExerciseId),
+  );
+  let exercise = session.exercises[currentIndex];
+  let prev = session.exercises[currentIndex - 1];
+  let next = session.exercises[currentIndex + 1];
+
+  function navigate(target: (typeof session.exercises)[number]) {
+    enqueue(
+      { kind: "setCurrentExercise", sessionId: session.id, sessionExerciseId: target.id },
+      `Moved to ${target.exerciseName}`,
     );
+    setFocusHeading(true);
   }
 
-  let exercise = session.exercises[currentIndex];
+  function finish() {
+    enqueue({ kind: "completeSession", sessionId: session.id, completedAt: new Date().toISOString() }, "Finished session");
+  }
+
   return (
     <RunSession
       key={exercise.id}
@@ -62,11 +61,10 @@ export function SessionView({
       exercise={exercise}
       position={currentIndex + 1}
       total={session.exercises.length}
-      isLastExercise={session.exercises.every((e) => e.id === exercise.id || e.completedAt)}
       lastPerformance={lastPerformances[exercise.exerciseId] ?? null}
-      prevId={session.exercises[currentIndex - 1]?.id ?? null}
-      nextId={session.exercises[currentIndex + 1]?.id ?? null}
-      onNavigate={navigate}
+      onPrev={prev ? () => navigate(prev) : null}
+      onNext={next ? () => navigate(next) : null}
+      onFinish={finish}
       focusHeading={focusHeading}
     />
   );

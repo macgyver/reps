@@ -25,7 +25,6 @@ export function applyToSession<T extends Session | SessionWithSets>(session: T, 
         {
           id: p.sessionExerciseId,
           position: p.position,
-          completedAt: null,
           exerciseId: p.exerciseId,
           exerciseName: p.exerciseName,
           sets: [],
@@ -56,14 +55,13 @@ export function applyToSession<T extends Session | SessionWithSets>(session: T, 
               ),
             },
       );
-    } else if (p.kind === "completeExercise") {
-      exercises = exercises.map((e) =>
-        e.id === p.sessionExerciseId && !e.completedAt ? { ...e, completedAt: p.completedAt } : e,
-      );
-      if (exercises.every((e) => e.completedAt)) result.completedAt ??= p.completedAt;
+    } else if (p.kind === "setCurrentExercise") {
+      result.currentExerciseId = p.sessionExerciseId;
+    } else if (p.kind === "completeSession") {
+      result.completedAt = p.completedAt;
+      result.currentExerciseId = null;
     } else if (p.kind === "reopenSession") {
       result.completedAt = null;
-      exercises = exercises.map((e) => ({ ...e, completedAt: null }));
     }
   }
 
@@ -82,6 +80,7 @@ export function applyToSessions(sessions: SessionWithSets[], changes: Change[]):
       userId: getUserId() ?? "",
       createdAt: p.createdAt,
       completedAt: null,
+      currentExerciseId: null,
       exercises: [],
     });
   }

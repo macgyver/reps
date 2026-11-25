@@ -36,14 +36,20 @@ export function getRefs(payload: ChangePayload): Refs {
       return { creates: [payload.setId], requires: [payload.sessionExerciseId], writes: [] };
     case "updateSet":
       return { creates: [], requires: [payload.setId], writes: [payload.setId] };
-    case "completeExercise":
+    // Navigation only orders against other writes to the current-exercise
+    // pointer, so a failed one doesn't hold back unrelated session edits.
+    case "setCurrentExercise":
+      return { creates: [], requires: [payload.sessionId], writes: [`current:${payload.sessionId}`] };
+    case "completeSession":
+    case "reopenSession":
       return {
         creates: [],
-        requires: [payload.sessionExerciseId],
-        writes: [payload.sessionExerciseId, payload.sessionId],
+        requires: [payload.sessionId],
+        writes: [payload.sessionId, `current:${payload.sessionId}`],
       };
-    case "reopenSession":
-      return { creates: [], requires: [payload.sessionId], writes: [payload.sessionId] };
+    // Kinds removed since a change was stored on this device.
+    default:
+      return { creates: [], requires: [], writes: [] };
   }
 }
 

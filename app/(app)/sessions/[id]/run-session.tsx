@@ -17,11 +17,10 @@ export function RunSession({
   exercise,
   position,
   total,
-  isLastExercise,
   lastPerformance,
-  prevId,
-  nextId,
-  onNavigate,
+  onPrev,
+  onNext,
+  onFinish,
   focusHeading,
 }: {
   sessionId: string;
@@ -29,11 +28,10 @@ export function RunSession({
   exercise: SessionExerciseWithSets;
   position: number;
   total: number;
-  isLastExercise: boolean;
   lastPerformance: LastPerformance | null;
-  prevId: string | null;
-  nextId: string | null;
-  onNavigate: (sessionExerciseId: string | null) => void;
+  onPrev: (() => void) | null;
+  onNext: (() => void) | null;
+  onFinish: () => void;
   focusHeading: boolean;
 }) {
   let headingRef = useRef<HTMLHeadingElement>(null);
@@ -64,16 +62,9 @@ export function RunSession({
     setFormKey((k) => k + 1);
   }
 
-  function completeExercise() {
-    let completedAt = new Date().toISOString();
-    let label = isLastExercise ? "Finished session" : `Completed ${exercise.exerciseName}`;
-    enqueue({ kind: "completeExercise", sessionId, sessionExerciseId: exercise.id, completedAt }, label);
-    onNavigate(null);
-  }
-
-  function saveSetAndComplete(formData: FormData) {
+  function saveSetAndMoveOn(formData: FormData) {
     saveSet(formData);
-    completeExercise();
+    (onNext ?? onFinish)();
   }
 
   function startEditingSet(set: LoggedSet) {
@@ -117,8 +108,8 @@ export function RunSession({
           type="button"
           className={styles.stepButton}
           aria-label="Previous exercise"
-          disabled={!prevId}
-          onClick={() => onNavigate(prevId)}
+          disabled={!onPrev}
+          onClick={onPrev ?? undefined}
         >
           <svg className={styles.chevron} viewBox="0 0 10 16" aria-hidden="true">
             <path d="M7.5 2.5 2.5 8l5 5.5" />
@@ -132,8 +123,8 @@ export function RunSession({
           type="button"
           className={`${styles.stepButton} ${styles.stepNext}`}
           aria-label="Next exercise"
-          disabled={!nextId}
-          onClick={() => onNavigate(nextId)}
+          disabled={!onNext}
+          onClick={onNext ?? undefined}
         >
           Next
           <svg className={styles.chevron} viewBox="0 0 10 16" aria-hidden="true">
@@ -206,9 +197,9 @@ export function RunSession({
             </button>
           ) : null}
         </div>
-        {editingSet || exercise.completedAt ? null : (
-          <button type="submit" formAction={saveSetAndComplete} className={styles.logAndCompleteButton}>
-            {isLastExercise ? "Log set and finish session" : "Log set and complete exercise"}
+        {editingSet ? null : (
+          <button type="submit" formAction={saveSetAndMoveOn} className={styles.logAndCompleteButton}>
+            {onNext ? "Log set and go to next exercise" : "Log set and finish session"}
           </button>
         )}
       </form>
@@ -228,14 +219,13 @@ export function RunSession({
         </ul>
       ) : null}
 
-      {exercise.completedAt ? null : (
+      {onNext ? null : (
         <div className={styles.navRow}>
-          <button type="button" className={styles.completeButton} onClick={completeExercise}>
-            {isLastExercise ? "Finish session" : "Complete exercise"}
+          <button type="button" className={styles.completeButton} onClick={onFinish}>
+            Finish session
           </button>
         </div>
       )}
-
     </div>
   );
 }

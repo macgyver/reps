@@ -34,7 +34,8 @@ export type ChangePayload =
   | { kind: "removeSessionExercise"; sessionExerciseId: string; sessionId: string }
   | ({ kind: "logSet"; performedAt: string } & SetFields)
   | ({ kind: "updateSet" } & SetFields)
-  | { kind: "completeExercise"; sessionId: string; sessionExerciseId: string; completedAt: string }
+  | { kind: "setCurrentExercise"; sessionId: string; sessionExerciseId: string }
+  | { kind: "completeSession"; sessionId: string; completedAt: string }
   | { kind: "reopenSession"; sessionId: string };
 
 export type Change = {

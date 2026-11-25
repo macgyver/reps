@@ -38,6 +38,11 @@ export const sessions = pgTable("sessions", {
     .references(() => authUsers.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   completedAt: timestamp("completed_at", { withTimezone: true }),
+  // The exercise being shown while running the session, so it resumes in
+  // place; cleared on completion. Deliberately not a foreign key: a second
+  // relationship between these tables would make PostgREST embeds ambiguous,
+  // and a stale id just falls back to the first exercise.
+  currentSessionExerciseId: uuid("current_session_exercise_id"),
 }).enableRLS();
 
 export const sessionExercises = pgTable("session_exercises", {
@@ -49,7 +54,6 @@ export const sessionExercises = pgTable("session_exercises", {
     .notNull()
     .references(() => exercises.id),
   position: integer("position").notNull(),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
 }).enableRLS();
 
 export const sets = pgTable("sets", {

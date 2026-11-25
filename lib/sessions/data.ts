@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 export type SessionExercise = {
   id: string;
   position: number;
-  completedAt: string | null;
   exerciseId: string;
   exerciseName: string;
 };
@@ -13,6 +12,7 @@ export type Session = {
   userId: string;
   createdAt: string;
   completedAt: string | null;
+  currentExerciseId: string | null;
   exercises: SessionExercise[];
 };
 
@@ -38,10 +38,10 @@ const SESSION_SELECT = `
   userId:user_id,
   createdAt:created_at,
   completedAt:completed_at,
+  currentExerciseId:current_session_exercise_id,
   exercises:session_exercises(
     id,
     position,
-    completedAt:completed_at,
     exerciseId:exercise_id,
     exercise:exercises(name)
   )
@@ -64,6 +64,7 @@ export async function getSession(id: string): Promise<Session | null> {
     userId: data.userId,
     createdAt: data.createdAt,
     completedAt: data.completedAt,
+    currentExerciseId: data.currentExerciseId,
     exercises: data.exercises.map((exercise) => {
       // supabase-js can't infer this embed is to-one from an untyped
       // query — at runtime PostgREST returns a single object here since
@@ -72,7 +73,6 @@ export async function getSession(id: string): Promise<Session | null> {
       return {
         id: exercise.id,
         position: exercise.position,
-        completedAt: exercise.completedAt,
         exerciseId: exercise.exerciseId,
         exerciseName: ex.name,
       };
@@ -85,10 +85,10 @@ const SESSION_WITH_SETS_SELECT = `
   userId:user_id,
   createdAt:created_at,
   completedAt:completed_at,
+  currentExerciseId:current_session_exercise_id,
   exercises:session_exercises(
     id,
     position,
-    completedAt:completed_at,
     exerciseId:exercise_id,
     exercise:exercises(name),
     sets(
@@ -106,10 +106,10 @@ type SessionWithSetsRow = {
   userId: string;
   createdAt: string;
   completedAt: string | null;
+  currentExerciseId: string | null;
   exercises: {
     id: string;
     position: number;
-    completedAt: string | null;
     exerciseId: string;
     exercise: unknown;
     sets: LoggedSet[];
@@ -122,12 +122,12 @@ function mapSessionWithSets(row: SessionWithSetsRow): SessionWithSets {
     userId: row.userId,
     createdAt: row.createdAt,
     completedAt: row.completedAt,
+    currentExerciseId: row.currentExerciseId,
     exercises: row.exercises.map((exercise) => {
       let ex = exercise.exercise as unknown as { name: string };
       return {
         id: exercise.id,
         position: exercise.position,
-        completedAt: exercise.completedAt,
         exerciseId: exercise.exerciseId,
         exerciseName: ex.name,
         sets: exercise.sets,

@@ -25,6 +25,8 @@ export async function runChange(
 ) {
   let upsert = (table: string, row: object) =>
     supabase.from(table).upsert(row, { onConflict: "id" }).abortSignal(signal);
+  let updateSession = async (sessionId: string, row: object) =>
+    check(await supabase.from("sessions").update(row).eq("id", sessionId).abortSignal(signal));
 
   switch (payload.kind) {
     case "createSession":
@@ -36,13 +38,7 @@ export async function runChange(
         }),
       );
     case "updateSessionDate":
-      return check(
-        await supabase
-          .from("sessions")
-          .update({ created_at: payload.createdAt })
-          .eq("id", payload.sessionId)
-          .abortSignal(signal),
-      );
+      return updateSession(payload.sessionId, { created_at: payload.createdAt });
     case "createExercise":
       return check(
         await upsert("exercises", {
@@ -95,45 +91,14 @@ export async function runChange(
           .eq("id", payload.setId)
           .abortSignal(signal),
       );
-    case "completeExercise": {
-      check(
-        await supabase
-          .from("session_exercises")
-          .update({ completed_at: payload.completedAt })
-          .eq("id", payload.sessionExerciseId)
-          .abortSignal(signal),
-      );
-      let { count, error } = await supabase
-        .from("session_exercises")
-        .select("id", { count: "exact", head: true })
-        .eq("session_id", payload.sessionId)
-        .is("completed_at", null)
-        .abortSignal(signal);
-      check({ error });
-      if (count === 0) {
-        check(
-          await supabase
-            .from("sessions")
-            .update({ completed_at: payload.completedAt })
-            .eq("id", payload.sessionId)
-            .abortSignal(signal),
-        );
-      }
-    }
+    case "setCurrentExercise":
+      return updateSession(payload.sessionId, { current_session_exercise_id: payload.sessionExerciseId });
+    case "completeSession":
+      return updateSession(payload.sessionId, {
+        completed_at: payload.completedAt,
+        current_session_exercise_id: null,
+      });
     case "reopenSession":
-      check(
-        await supabase
-          .from("session_exercises")
-          .update({ completed_at: null })
-          .eq("session_id", payload.sessionId)
-          .abortSignal(signal),
-      );
-      return check(
-        await supabase
-          .from("sessions")
-          .update({ completed_at: null })
-          .eq("id", payload.sessionId)
-          .abortSignal(signal),
-      );
+      return updateSession(payload.sessionId, { completed_at: null });
   }
 }
